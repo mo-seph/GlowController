@@ -10,19 +10,39 @@ class GlowBehaviour {
 public:
   GlowBehaviour(GlowStrip *s,const char* nme) : strip(s), name(nme) {};
   //void set_strip(GlowStrip *s){ strip = s;}
-  virtual void init(JsonDocument d) { init(); };
+  virtual void init(JsonVariant d) { init(); };
   virtual void init() {};
-  virtual void updateParameters(DynamicJsonDocument d) {};
-  virtual void update(long millis) {};
-  virtual const char* getName() {return name;};
-  //Utility...
-  void start() {Serial.print("Behaviour beginning: "); Serial.println(getName());};
 
-  void stop() {Serial.print("Behaviour ending: "); Serial.println(getName());};
+
+  virtual void stateFromJson(JsonVariant d) {};
+  virtual void stateToJson(JsonVariant d) {}
+
+  virtual void update(long millis) {
+    if(active) doUpdate(millis);
+  };
+  virtual void doUpdate(long millis) {};
+
+  virtual const char* getName() {return name;};
+
+  void setActive(bool act) {
+    if( ! active && act ) {
+      Serial.print("Behaviour beginning: "); Serial.println(getName());
+      active = true;
+    }
+    else if( active && !act ) {
+      Serial.print("Behaviour ending: "); Serial.println(getName());
+      active = false;
+    }
+  }
+  bool isActive() { return active; };
+
+
+
 
 protected:
   GlowStrip *strip;
   const char* name;
+  bool active;
 
 };
 
@@ -32,7 +52,7 @@ public:
   Fill(GlowStrip* s, FRGBW col) : GlowBehaviour(s,"Fill"), currentColor(col) {
     targetColor = currentColor;
   }
-  void update(long updateTime) {
+  void doUpdate(long updateTime) {
     long delta = millis() - interpStart;
     float proportion = (float)((delta)/interpTime) * 0.001;
     if( proportion <= 1.0 ) {
@@ -43,18 +63,6 @@ public:
     strip->fillRGBW(currentColor);
   }
 
-  void updateParameters(DynamicJsonDocument d) {
-    if( d.containsKey("time")) {
-      nextInterpTime = (d["time"]);
-    }
-    FRGBW tmpCol;
-    tmpCol = targetColor;
-    if( d.containsKey("r")) { tmpCol.r = d["r"]; }
-    if( d.containsKey("g")) tmpCol.g = d["g"];
-    if( d.containsKey("b")) tmpCol.b = d["b"];
-    if( d.containsKey("w")) tmpCol.w = d["w"];
-    setColor(tmpCol);
-  };
 
   void setInterpTime(float t) { nextInterpTime = t;};
   void setColor(FRGBW c ) {
@@ -63,6 +71,19 @@ public:
     startInterp();
     targetColor = c;
   };
+
+  void stateFromJson(JsonVariant d) {
+    if( d.containsKey("time")) nextInterpTime = d["time"];
+    FRGBW tmpCol = targetColor;
+    tmpCol.fromJson(d);
+    setColor(tmpCol);
+  };
+
+  void stateToJson(JsonVariant d) {
+    targetColor.toJson(d);
+    d["time"] = (nextInterpTime > 0) ? nextInterpTime : interpTime;
+  }
+
 protected:
   FRGBW currentColor;
   FRGBW startColor;
@@ -89,9 +110,39 @@ public:
       counterColor = FRGBW(0,0,0,bri);
     };
 
-  void update(long updateTime) {
-    current = (current + 1 ) % (factor*length);
-    strip->addRGBW(current/factor,counterColor);
+  void doUpdate(long updateTime) {
+    current = (current + 1 ) % (factor*(length-2));
+    long t2 = updateStored(updateTime);
+    strip->addRGBW(current/factor + 2,counterColor);
+    strip->setRGBW(0,timeToColor(updateTime));
+    strip->setRGBW(1,timeToColor(t2));
+  }
+
+  long updateStored(long t) {
+    previousCounter = (previousCounter + 1) % 30;
+    previousTimes[previousCounter] = t;
+    for(int i = 0; i < 30; i++ ) t = max(t,previousTimes[i]);
+    return t;
+  }
+
+  FRGBW timeToColor(long updateTime) {
+    if( updateTime < 10 ) return FRGBW(0,1,0,0);
+    if( updateTime < 30 ) return FRGBW(0,1,0,0);
+    if( updateTime < 100 ) {
+      float factor = (float)(updateTime-30)/70.0;
+      return FRGBW(factor,(1-factor),0,0);
+    }
+    return FRGBW(1,0,1,0);
+  }
+
+  virtual void stateFromJson(JsonVariant d) {
+    if( d.containsKey("length")) length = d["length"];
+    if( d.containsKey("factor")) factor = d["factor"];
+  }
+
+  virtual void stateToJson(JsonVariant d) {
+    d["length"] = length;
+    d["factor"] = factor;
   }
 
 protected:
@@ -100,6 +151,8 @@ protected:
   int factor;
   float brightness;
   FRGBW counterColor;
+  int previousTimes[30];
+  int previousCounter;
 };
 
 
@@ -113,69 +166,80 @@ class FillHSV : public Behaviour {
 };
 */
 
-/*
 
-struct GlowBall {
+class GlowBall {
+
+protected:
   AreaRGBW glow;
   float rate;
   float direction = 1;
   bool active;
-  GlowBall() {
-    glow = AreaARGBW(FRGBW(0,0,0,0),0,0);
-    rate = 0;
-    direction = 1;
-    active = false;
-  };
-  GlowBall(AreaARGB g, float r, int dir, bool act=false) {
-    glow = g;
-    rate = r;
-    direction = dir;
-    active = act;
-  };
-};
-
-
-#define MAX_BALLS=16
-
-class BallRunner : public GlowBehaviour {
 
 public:
-  BallRunner(GlowStrip *s,const char* nme) : GlowBehaviour(s,nme) {};
-protected:
-  void updateBallDynamics(GlowBall* ball, long millis) {
-    if( ball->rate < 0 ) {
-      ball->rate = -ball->rate;
-      ball->direction = -1;
+  //GlowBall() : GlowBall(AreaARGBW(FRGBW(0,0,0,0),0,0), 0, 1, false) { };
+  GlowBall(AreaRGBW g, float r, int dir, bool act=false) :
+    glow(g), rate(r), direction(dir), active(act){ };
+
+  void updateDynamics(long millis) {
+    if( rate < 0 ) {
+      rate = -rate;
+      direction = -1;
     }
-    if(! ball->active ) { return; }
-    ball->glow.centre = ball->glow.centre + ball->rate * millis * 0.001 * ball->direction;
-    if( ball->glow.centre > 1.0 ) {
-      ball->glow.centre = 1.0;
-      ball->direction = -1;
+    if(! active ) { return; }
+    glow.centre = glow.centre + rate * millis * 0.001 * direction;
+    if( glow.centre > 1.0 ) {
+      glow.centre = 1.0;
+      direction = -1;
     }
-    if( ball->glow.centre < 0.0 ) {
-      ball->glow.centre = 0.0;
-      ball->direction = 1;
+    if( glow.centre < 0.0 ) {
+      glow.centre = 0.0;
+      direction = 1;
     }
-    strip->glowRGBWRel(ball->glow,true);
   }
 
+  void show(GlowStrip *s) {
+    s->glowRGBWRel(glow,true);
+  }
 
+  void toJson(JsonVariant d) {
+    glow.toJson(d);
+    d["rate"] = rate;
+  }
+
+  void fromJson(JsonVariant d) {
+    glow.fromJson(d);
+    if( d.containsKey("rate")) rate = d["rate"];
+  }
 };
 
-class Glow : public BallRunner {
+
+
+class Glow : public GlowBehaviour {
 
 public:
-  Glow(GlowStrip* s) : Glow(s,AreaARGBW(FRGBW(0,0,0,0),0,0)) {};
-  Glow(GlowStrip* s, AreaRGBW g, float r=0) : BallRunner(s,"Glow"), ball(g,r,1,true) { }
-  void update(long millis) {
-    updateBallDynamics(&ball,millis);
+  Glow(GlowStrip* s) : Glow(s,AreaRGBW(FRGBW(0,0,0,1),0.1,0.01)) {};
+  Glow(GlowStrip* s, AreaRGBW g, float rate=0) :
+    GlowBehaviour(s,"Glow"), ball(g,rate,1,true) { }
+
+  void doUpdate(long millis) {
+    ball.updateDynamics(millis);
+    ball.show(strip);
+  }
+
+  virtual void stateFromJson(JsonVariant d) {
+    ball.fromJson(d);
+  }
+
+  virtual void stateToJson(JsonVariant d) {
+    ball.toJson(d);
   }
 protected:
   GlowBall ball;
 };
 
 
+/*
+#define MAX_BALLS 16
 class GlowBalls : public GlowBehaviour {
 
 public:
@@ -202,9 +266,7 @@ public:
 protected:
   GlowBall balls[MAX_BALLS]
 };
-
 */
-
 
 
 class Breathe : public GlowBehaviour {
@@ -225,7 +287,7 @@ public:
       level = min;
       delta = rate;
     }
-  void update(long millis) {
+  void doUpdate(long millis) {
     level += ((float)millis * 0.001 ) * delta;
     if( level >= max ) {
       level = max;

@@ -29,24 +29,39 @@ const int MAX_BEHAVIOURS = 30;
 
 class GlowController {
 public:
-  GlowController(GlowStrip* s, bool blnk=false) : strip(s), behaviours(), blank(blnk) {};
+  GlowController(GlowStrip* s, bool blnk=false) : strip(s), behaviours(), blank(blnk), frameRate(25.0) {};
   void runBehaviours();
   //void initialise(GlowStrip* s);
   void processInput(DynamicJsonDocument d);
-  void createBehaviour(int id, DynamicJsonDocument d);
-  void updateBehaviour(int id, DynamicJsonDocument d);
+  void createBehaviour(int id, JsonVariant d);
+  void updateBehaviour(int id, JsonVariant d);
 
   void setBehaviour(int i, GlowBehaviour* b) {
     behaviours[i] = b;
-    b->start();
+    b->setActive(true);
   };
 
   void removeBehaviour(int i) {
-    if( behaviours[i] ) behaviours[i]->stop();
+    if( behaviours[i] ) behaviours[i]->setActive(false);
     behaviours[i] = NULL;
   };
 
-  void storeColor(JsonDocument d,int address=0) {
+  void activateBehaviour(int i) {
+    if( behaviours[i] ) behaviours[i]->setActive(true);
+  }
+  void deActivateBehaviour(int i) {
+    if( behaviours[i] ) behaviours[i]->setActive(false);
+  }
+
+  DynamicJsonDocument outputState();
+
+  void sendState() {
+    DynamicJsonDocument state = outputState();
+    serializeJson(state,Serial);
+    Serial.println();
+  }
+
+  void storeColor(JsonVariant d,int address=0) {
     if(d["r"]) tmpColor.r = d["r"];
     if(d["g"]) tmpColor.g = d["g"];
     if(d["b"]) tmpColor.b = d["b"];
@@ -74,6 +89,7 @@ protected:
   GlowBehaviour* behaviours[MAX_BEHAVIOURS];
   bool blank;
   FRGBW tmpColor;
+  float frameRate;
 };
 
 
