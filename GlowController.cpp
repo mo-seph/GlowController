@@ -50,15 +50,12 @@ void GlowController::deActivateBehaviour(int i) {
 }
 
 void GlowController::runBehaviours() {
-  long start = millis();
-  long delta = start - last_update;
-  last_update = millis();
+  time.behavioursStart();
 
   if( blank ) {
-    ////Serial.println("Blanking strip");
     //strip->fillRGBW(0,0,0,0);
-    //Serial.println("Done");
   }
+  int delta = time.delta();
   for( int i = 0; i < MAX_BEHAVIOURS; i++ ) {
     /* Update the behaviours */
     if(behaviours[i]) {
@@ -69,23 +66,12 @@ void GlowController::runBehaviours() {
       //Serial.print(" N:"); Serial.print(i);
     }
   }
-  //Serial.println();
-  long behaviour_time = millis() - last_update;
-  /* Show the output */
+  time.behavioursDone();
+
+  time.showStart();
   strip->show();
+  time.showDone();
 
-  long delay_time = (int)(1000 / frameRate) - delta;
-
-  long show_time = millis() - last_update - behaviour_time;
-  (void)show_time;
-  #ifdef TIME_LOGGING
-    Serial.print("Delta: ");Serial.print(delta);
-    Serial.print(" Behaviour time: ");Serial.print(behaviour_time);
-    Serial.print(" Show time: ");Serial.print(show_time);
-    Serial.print(" Delay time: ");Serial.print(delay_time);
-    Serial.println();
-  #endif
-  if( delay_time > 0 ) delay(delay_time);
 }
 
 void GlowController::processInput(DynamicJsonDocument d) {

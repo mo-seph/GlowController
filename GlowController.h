@@ -21,6 +21,7 @@
 #include "Arduino.h"
 #include "GlowBehaviours.h"
 #include "GlowStrip.h"
+#include "TimeKeeping.h"
 #include <ArduinoJson.h>
 //#include <OctoWS2811.h>
 #include <EEPROM.h>
@@ -84,6 +85,7 @@ public:
     return tColor;
   }
   GlowStrip* getStrip() {return strip;}
+  TimeKeeping* timeKeeping() { return &time; }
 
 protected:
   GlowStrip *strip;
@@ -95,6 +97,7 @@ protected:
   DynamicJsonDocument doc;
   FRGBW defaultColor;
   bool checkDeserialisation( DeserializationError error );
+  TimeKeeping time;
 };
 
 
