@@ -22,44 +22,45 @@
 #include "GlowBehaviours.h"
 #include "GlowStrip.h"
 #include <ArduinoJson.h>
-#include <OctoWS2811.h>
+//#include <OctoWS2811.h>
 #include <EEPROM.h>
+#include <TimeLib.h>
 
-const int MAX_BEHAVIOURS = 30;
+
+
+
+const static int MAX_BEHAVIOURS = 20;
+
+class GlowBehaviour;
 
 class GlowController {
 public:
-  GlowController(GlowStrip* s, bool blnk=false) : strip(s), behaviours(), blank(blnk), frameRate(25.0) {};
+  GlowController(GlowStrip* s, bool blnk=false);
   void runBehaviours();
   //void initialise(GlowStrip* s);
+
+  void createBehaviour(JsonVariant d);
+  void createBehaviours(JsonVariant d);
+  GlowBehaviour* makeBehaviourFromType(const char* name);
+  GlowBehaviour* getBehaviour(int id) {return behaviours[id];};
+
+  /* Externally callable methods to send in JSON */
+  void update(); // From Serial
+  void update(const char* input); //From a string
+  void update(byte* input, unsigned int length); //From bytes and length
+
+
   void processInput(DynamicJsonDocument d);
-  void createBehaviour(int id, JsonVariant d);
   void updateBehaviour(int id, JsonVariant d);
 
-  void setBehaviour(int i, GlowBehaviour* b) {
-    behaviours[i] = b;
-    b->setActive(true);
-  };
+  void setBehaviour(int i, GlowBehaviour* b);
+  void removeBehaviour(int i);
 
-  void removeBehaviour(int i) {
-    if( behaviours[i] ) behaviours[i]->setActive(false);
-    behaviours[i] = NULL;
-  };
+  void activateBehaviour(int i);
+  void deActivateBehaviour(int i);
 
-  void activateBehaviour(int i) {
-    if( behaviours[i] ) behaviours[i]->setActive(true);
-  }
-  void deActivateBehaviour(int i) {
-    if( behaviours[i] ) behaviours[i]->setActive(false);
-  }
-
+  void sendState();
   DynamicJsonDocument outputState();
-
-  void sendState() {
-    DynamicJsonDocument state = outputState();
-    serializeJson(state,Serial);
-    Serial.println();
-  }
 
   void storeColor(JsonVariant d,int address=0) {
     if(d["r"]) tmpColor.r = d["r"];
@@ -69,9 +70,9 @@ public:
     storeColor(tmpColor,address);
   }
   void storeColor(FRGBW color,int address=0) {
-    Serial.print("Storing color: [");
-    strip->printColor(color);
-    Serial.println("]");
+    Serial.print("Storing color: []");
+    //strip->printColor(color);
+    //Serial.println("]");
     EEPROM.put(address,color);
   }
   FRGBW loadColor(FRGBW color,int address=0) {
@@ -82,6 +83,7 @@ public:
     Serial.println("]");
     return tColor;
   }
+  GlowStrip* getStrip() {return strip;}
 
 protected:
   GlowStrip *strip;
@@ -90,6 +92,9 @@ protected:
   bool blank;
   FRGBW tmpColor;
   float frameRate;
+  DynamicJsonDocument doc;
+  FRGBW defaultColor;
+  bool checkDeserialisation( DeserializationError error );
 };
 
 
