@@ -20,12 +20,15 @@
 #define GlowController_h
 #include "Arduino.h"
 #include "GlowBehaviours.h"
+#include "GlowInterfaces.h"
 #include "GlowStrip.h"
 #include "TimeKeeping.h"
 #include <ArduinoJson.h>
 //#include <OctoWS2811.h>
 #include <EEPROM.h>
-#include <TimeLib.h>
+//#include <TimeLib.h>
+#include <LinkedList.h>
+#include <TimeStruct.h>
 
 
 
@@ -34,9 +37,10 @@ const static int MAX_BEHAVIOURS = 20;
 
 class GlowBehaviour;
 
+
 class GlowController {
 public:
-  GlowController(GlowStrip* s, bool blnk=false);
+  GlowController(GlowStrip* s, const char* id);
   void runBehaviours();
   //void initialise(GlowStrip* s);
 
@@ -44,6 +48,9 @@ public:
   void createBehaviours(JsonVariant d);
   GlowBehaviour* makeBehaviourFromType(const char* name);
   GlowBehaviour* getBehaviour(int id) {return behaviours[id];};
+
+
+  void loop();
 
   /* Externally callable methods to send in JSON */
   void update(); // From Serial
@@ -61,7 +68,7 @@ public:
   void deActivateBehaviour(int i);
 
   void sendState();
-  DynamicJsonDocument outputState();
+  DynamicJsonDocument createOutputState();
 
   void storeColor(JsonVariant d,int address=0) {
     if(d["r"]) tmpColor.r = d["r"];
@@ -85,21 +92,56 @@ public:
     return tColor;
   }
   GlowStrip* getStrip() {return strip;}
+  const char* getID() {return id;}
   TimeKeeping* timeKeeping() { return &time; }
+  void addFeature(Feature *f) {
+    f->setController(this);
+    features.add(f);
+  }
+  void updateFeatures() {
+    int l = features.size();
+    for( int i = 0; i < l; i++ ) { features.get(i)->update(); }
+  }
+  void addConnector(Connector *f) {
+    f->setController(this);
+    connectors.add(f);
+  }
+  void updateConnectors() {
+    int l = connectors.size();
+    for( int i = 0; i < l; i++ ) { connectors.get(i)->update(doc); }
+  }
+
+  void setTime(int hour, int minute, int second) {
+    if(hour >= 0) current_time.hour = hour;
+    if(minute >= 0 ) current_time.minute = minute;
+    if( second >= 0 ) current_time.second = second;
+  }
+
+  void setDate(int year, int month, int day) {
+    if(year >= 0 ) current_time.year = year;
+    if( month >= 0 ) current_time.month = month;
+    if( day >= 0 ) current_time.day = day;
+  }
+  CurrentTime* getTime() { return &current_time; }
 
 protected:
   GlowStrip *strip;
+  const char* id;
   unsigned long last_update = 0;
   GlowBehaviour* behaviours[MAX_BEHAVIOURS];
-  bool blank;
   FRGBW tmpColor;
   float frameRate;
   DynamicJsonDocument doc;
   FRGBW defaultColor;
   bool checkDeserialisation( DeserializationError error );
   TimeKeeping time;
+  LinkedList<Feature*> features;
+  LinkedList<Connector*> connectors;
+  CurrentTime current_time;
 };
 
+
+void setupWiFi(const char* ssid, const char* password);
 
 
 #endif
