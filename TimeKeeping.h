@@ -13,7 +13,9 @@ struct TimeKeeping {
   int logState;
   int logTime;
   long _prevBehavioursStart;
-  TimeKeeping() : _frameRate(25), logState(0), logTime(1), _prevBehavioursStart(-1) {};
+  long outputRate;
+  long _lastOutput;
+  TimeKeeping() : _frameRate(25), logState(0), logTime(1), _prevBehavioursStart(-1), outputRate(1000), _lastOutput(0) {};
 
   void loopStart() {
     if( logState ) Serial.println("Starting Loop");
@@ -62,15 +64,16 @@ struct TimeKeeping {
   void delayIfNeeded() {
     long d = delayTime();
     if( d > 0 && d < 1000 ) {
-      if( logTime ) {
-        Serial.println("Delaying for: "); Serial.print(d);
-      }
       delay(d);
     }
   }
 
 
   void printOutput() {
+    if( millis() < _lastOutput + outputRate ) {
+      return;
+    }
+    _lastOutput = millis();
     if( logTime ) {
       long update_t = _loopDone - _loopStart;
       Serial.print("Update time: ");Serial.print(update_t);
