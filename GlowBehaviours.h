@@ -5,10 +5,13 @@
 //#include <Adafruit_NeoPixel.h>
 #include <ArduinoJson.h>
 #include <GlowController.h>
-#include <TimeLib.h>
+//#include <TimeLib.h>
+
+#include "TimeStruct.h"
 
 
 class GlowController;
+
 
 class GlowBehaviour {
 public:
@@ -26,6 +29,7 @@ public:
 
   virtual void stateFromJson(JsonVariant d) {};
   virtual void stateToJson(JsonVariant d) {}
+
 
   virtual void update(long millis) { if(active) doUpdate(millis); };
   virtual void doUpdate(long millis) {};
@@ -273,40 +277,10 @@ protected:
 
 class PixelClock : public GlowBehaviour {
 public:
-  PixelClock(GlowController* s ) : GlowBehaviour(s,"PixelClock") {}
-  void doUpdate(long millis) {
-    strip->startPixels(start,scale);
-    strip->addPixel(delimiterCol);
-    int h = hour();
-    int m = minute() / 5;
-    int s = second() / 5;
-
-    for( int i = 0; i < 24; i++ ) {
-      strip->addPixel(h > i ? hoursCol : backgroundCol );
-    }
-    strip->addPixel(delimiterCol);
-    for( int i = 0; i < 12; i++ ) {
-      strip->addPixel(m > i ? minutesCol : backgroundCol );
-    }
-    strip->addPixel(delimiterCol);
-    for( int i = 0; i < 12; i++ ) {
-      strip->addPixel(s > i ? secondsCol : backgroundCol );
-    }
-    strip->addPixel(delimiterCol);
-  };
-
-  virtual void stateToJson(JsonVariant d) {
-    d["start"] = start;
-    d["scale"] = scale;
-  }
-
-  virtual void stateFromJson(JsonVariant d) {
-    Serial.println("Updating pixelclock");
-    serializeJson(d,Serial);
-    if( d.containsKey("start")) start = d["start"];
-    if( d.containsKey("scale")) scale = d["scale"];
-  }
-
+  PixelClock(GlowController* s );
+  void doUpdate(long millis);
+  virtual void stateToJson(JsonVariant d);
+  virtual void stateFromJson(JsonVariant d);
 
 protected:
   int start = 10;

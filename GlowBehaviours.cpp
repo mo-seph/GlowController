@@ -2,32 +2,39 @@
 
 GlowBehaviour::GlowBehaviour(GlowController *c,const char *type) :
   controller(c), strip(c->getStrip()), type(type) { }
-//void set_strip(GlowStrip *s){ strip = s;}
 
-/*
-virtual void init(JsonVariant d) {
-  if( d.containsKey("name")) setName( d["time"] );
-  stateFromJson(d);
+
+PixelClock::PixelClock(GlowController* s ) : GlowBehaviour(s,"PixelClock") {}
+void PixelClock::doUpdate(long millis) {
+  strip->startPixels(start,scale);
+  strip->addPixel(delimiterCol);
+  CurrentTime *t = controller->getTime();
+  int h = t->hour;
+  int m = t->minute / 5;
+  int s = t->second / 5;
+
+  for( int i = 0; i < 24; i++ ) {
+    strip->addPixel(h > i ? hoursCol : backgroundCol );
+  }
+  strip->addPixel(delimiterCol);
+  for( int i = 0; i < 12; i++ ) {
+    strip->addPixel(m > i ? minutesCol : backgroundCol );
+  }
+  strip->addPixel(delimiterCol);
+  for( int i = 0; i < 12; i++ ) {
+    strip->addPixel(s > i ? secondsCol : backgroundCol );
+  }
+  strip->addPixel(delimiterCol);
 };
 
-virtual ~GlowBehaviour() {};
-
-
-virtual void stateFromJson(JsonVariant d) {};
-virtual void stateToJson(JsonVariant d) {}
-
-virtual void update(long millis) { if(active) doUpdate(millis); };
-virtual void doUpdate(long millis) {};
-
-virtual const char* getName() {return name;};
-virtual void setName(const char* n) {strcpy(name,n);};
-
-
-void setActive(bool act) {
-  if( ! active && act ) { active = true; }
-  else if( active && !act ) { active = false; }
+void PixelClock::stateToJson(JsonVariant d) {
+  d["start"] = start;
+  d["scale"] = scale;
 }
-bool isActive() { return active; };
-virtual const char* getType() {return type;};
 
-*/
+void PixelClock::stateFromJson(JsonVariant d) {
+  Serial.println("Updating pixelclock");
+  serializeJson(d,Serial);
+  if( d.containsKey("start")) start = d["start"];
+  if( d.containsKey("scale")) scale = d["scale"];
+}
