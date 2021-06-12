@@ -11,12 +11,12 @@
 struct Alarm {
   long start_time;
   long end_time;
-  int start_point;
+  float start_point;
   int length;
   FRGBW count_color;
   FRGBW frame_color;
   bool running;
-  Alarm(int start,int length,FRGBW col,FRGBW frame) {
+  Alarm(float start,int length,FRGBW col,FRGBW frame) {
     start_time = -1;
     end_time = -1;
     start_point = start;
@@ -29,7 +29,7 @@ struct Alarm {
 
 class Alarms : public GlowBehaviour {
 public:
-  Alarms(GlowController* s) : GlowBehaviour(s,"Alarms"),  alarm(10,30,FRGBW(1,0,0,0),FRGBW(0,1,1,0)) {}
+  Alarms(GlowController* s) : GlowBehaviour(s,"Alarms"),  alarm(0.03,30,FRGBW(1,0,0,0),FRGBW(0,1,1,0)) {}
   /*
   Fill(GlowStrip* s, FRGBW col) :
     Fill(s), currentColor(col), targetColor(col) { }
@@ -63,7 +63,7 @@ public:
     Serial.print(", num pixels: "); Serial.print(num_pixels);
     Serial.println();
     */
-    strip->startPixels(a->start_point,1);
+    strip->startPixels(strip->positionToPixels(a->start_point),1);
     for(int i = 0; i < border; i++ ) { strip->addPixel(a->frame_color);}
     for(int i = 0; i < strip_length; i++ ) {
       if( i < num_pixels ) strip->addPixel(a->count_color);

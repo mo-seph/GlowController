@@ -40,7 +40,7 @@ class GlowBehaviour;
 
 class GlowController {
 public:
-  GlowController(GlowStrip* s, const char* id);
+  GlowController(GlowStrip* s, const char* id, const char* name);
   void runBehaviours();
   //void initialise(GlowStrip* s);
 
@@ -93,6 +93,8 @@ public:
   }
   GlowStrip* getStrip() {return strip;}
   const char* getID() {return id;}
+  const char* getName() {return name;}
+
   TimeKeeping* timeKeeping() { return &time; }
   void addFeature(Feature *f) {
     f->setController(this);
@@ -127,6 +129,7 @@ public:
 protected:
   GlowStrip *strip;
   const char* id;
+  const char* name;
   unsigned long last_update = 0;
   GlowBehaviour* behaviours[MAX_BEHAVIOURS];
   FRGBW tmpColor;
@@ -141,7 +144,6 @@ protected:
 };
 
 
-void setupWiFi(const char* ssid, const char* password);
 
 
 #endif

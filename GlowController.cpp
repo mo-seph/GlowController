@@ -16,8 +16,8 @@ Example JSON docs:
 
 */
 
-GlowController::GlowController(GlowStrip* s, const char* id) :
-  strip(s), id(id), behaviours(),  frameRate(25.0), doc(1200), defaultColor(0,0,0,0.2) {
+GlowController::GlowController(GlowStrip* s, const char* id, const char* name) :
+  strip(s), id(id), name(name), behaviours(),  frameRate(25.0), doc(1200), defaultColor(0,0,0,0.2) {
     setTime(13,11,00);
     setDate(2021,05,29);
 };
@@ -139,12 +139,15 @@ void GlowController::processInput(DynamicJsonDocument d) {
 
 DynamicJsonDocument GlowController::createOutputState() {
   DynamicJsonDocument output(2048);
+  output["id"] = id;
+  //JsonVariant state = output.createNestedObject("state");
+
   for( int i = 0; i < MAX_BEHAVIOURS; i++ ) {
     if(behaviours[i]) {
-      output[i]["active"] = behaviours[i]->isActive();
-      output[i]["type"] = behaviours[i]->getType();
-      output[i]["name"] = behaviours[i]->getName();
-      output[i]["id"] = i;
+      output["state"][i]["active"] = behaviours[i]->isActive();
+      output["state"][i]["type"] = behaviours[i]->getType();
+      output["state"][i]["name"] = behaviours[i]->getName();
+      output["state"][i]["id"] = i;
       JsonVariant v = output[i].createNestedObject("data");
       //output["i"]["data"]["test"] = "hello";
       //behaviours[i]->addData(output["i"]["data"]);
@@ -283,15 +286,4 @@ bool GlowController::checkDeserialisation(DeserializationError error) {
     Serial.println("Got JSON input");
     return true;
   }
-}
-
-void setupWiFi(const char* ssid, const char* password) {
-  Serial.println("Setting up WiFi");
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Establishing connection to WiFi..");
-  }
-  Serial.println("Connected to network");
-  Serial.println(WiFi.localIP());
 }

@@ -20,6 +20,8 @@ static PubSubClient client(espClient);
 #define MSG_BUFFER_SIZE	(1000)
 char msg[MSG_BUFFER_SIZE];
 
+
+
 //const char* mqtt_server = "broker.mqtt-dashboard.com";
 //const char* command_channel = "leds/1/commands";
 //const char* state_channel = "leds/1/state";
@@ -45,17 +47,23 @@ void sendJsonMQTT(DynamicJsonDocument doc ) {
 */
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
+  if( strcmp(topic,PING_CHANNEL) == 0 ) {
+    MQTTConnector::mt_s->ping();
   }
-  Serial.println();
-  MQTTConnector::gc_s->update(payload,length);
+  else {
+    Serial.print("Message arrived [");
+    Serial.print(topic);
+    Serial.print("] ");
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+    }
+    Serial.println();
+    MQTTConnector::gc_s->update(payload,length);
+  }
 }
 
 GlowController* MQTTConnector::gc_s;
+MQTTConnector* MQTTConnector::mt_s;
 
 /*
 void setupMQTT(GlowController* c, const char * mqtt_server, int mqtt_port) {

@@ -9,6 +9,7 @@
 
 #define MSG_BUFFER_SIZE	(1000)
 
+#define PING_CHANNEL "leds/ping"
 
 
 //GlowController* MQTT_GLOW_CONTROL;
@@ -27,32 +28,30 @@ void callback(char* topic, byte* payload, unsigned int length);
 class MQTTConnector : public Connector {
 public:
   MQTTConnector(PubSubClient *client, const char* mqtt_server, int mqtt_port) :
-    Connector(), client(client), mqtt_server(mqtt_server), mqtt_port(mqtt_port)
+    Connector(), client(client), mqtt_server(mqtt_server), mqtt_port(mqtt_port), ping_response(300)
       //command_channel("leds/1/commands"), state_channel("leds/1/state")
       {
       Serial.println("Creating MQTT Connector");
-      Serial.println("Setting buffer size");
       client->setBufferSize(1000);
-      Serial.print("Setting server [");
-      Serial.print(mqtt_server);
-      Serial.print("] and port [");
-      Serial.print(mqtt_port);
-      Serial.println("]");
+      Serial.print("Setting server ["); Serial.print(mqtt_server); Serial.print("] and port ["); Serial.print(mqtt_port); Serial.println("]");
       client->setServer(mqtt_server, mqtt_port);
       updateConnection();
 
   }
   static GlowController* gc_s;
+  static MQTTConnector* mt_s;
 
   /* Should call super; lazy... */
   virtual void setController(GlowController *c) {
     Serial.println("Setting controller for MQTT Connector");
     controller = c;
     MQTTConnector::gc_s = c;
+    MQTTConnector::mt_s = this;
     client_id = String("GlowLight-") + c->getID();
     command_channel = String("leds/") + c->getID() + "/commands";
     state_channel = String("leds/") + c->getID() + "/state";
-    ping_msg = String("{\"connected\":\"") + controller->getID() + "\"}";
+    ping_response["id"] = controller->getID();
+    ping_response["name"] = controller->getName();
 
 
     client->setCallback(callback);
@@ -74,8 +73,10 @@ public:
           Serial.println(state_channel);
           // Once connected, publish an announcement...
           ping();
+          controller->sendState();
           // ... and resubscribe
           client->subscribe(command_channel.c_str());
+          client->subscribe(PING_CHANNEL);
         } else {
           Serial.print("failed, rc=");
           Serial.print(client->state());
@@ -90,7 +91,8 @@ public:
 
   void ping() {
     if( client->connected() ) {
-      client->publish(state_channel.c_str(), ping_msg.c_str());
+      serializeJson(ping_response, msg);
+      client->publish(state_channel.c_str(), msg);
     }
   }
 
@@ -129,6 +131,7 @@ protected:
 
   long retry_time = 0;
   long connection_interval = 2000;
+  DynamicJsonDocument ping_response;
 
 };
 
