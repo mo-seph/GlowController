@@ -17,9 +17,11 @@ Example JSON docs:
 */
 
 GlowController::GlowController(GlowStrip* s, const char* id, const char* name) :
-  strip(s), id(id), name(name), behaviours(),  frameRate(25.0), doc(1200), defaultColor(0,0,0,0.2) {
+  strip(s), id(id), name(name), behaviours(),  frameRate(25.0), doc(1600), defaultColor(0,0,0,0.2), ping_doc(500) {
     setTime(13,11,00);
     setDate(2021,05,29);
+    ping_doc["id"] = id;
+    ping_doc["name"] = name;
 };
 
 void GlowController::createBehaviours(JsonVariant d) {
@@ -70,6 +72,7 @@ void GlowController::runBehaviours() {
 
 
 }
+
 
 void GlowController::processInput(DynamicJsonDocument d) {
   Serial.println("Controller processing document");
@@ -148,7 +151,7 @@ DynamicJsonDocument GlowController::createOutputState() {
       output["state"][i]["type"] = behaviours[i]->getType();
       output["state"][i]["name"] = behaviours[i]->getName();
       output["state"][i]["id"] = i;
-      JsonVariant v = output[i].createNestedObject("data");
+      JsonVariant v = output["state"][i].createNestedObject("data");
       //output["i"]["data"]["test"] = "hello";
       //behaviours[i]->addData(output["i"]["data"]);
       behaviours[i]->stateToJson(v);

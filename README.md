@@ -13,7 +13,7 @@ Example:
 ```
 mosquitto_pub -h "192.168.178.123" -t "leds/ping" -m '{"ping":1}'
 ```
-Provokes ping response on `leds/living/state`:
+Provokes ping response on `leds/ping`:
 ```
 {"id":"living","name":"Living Room Lights"}
 ```

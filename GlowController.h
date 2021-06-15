@@ -32,7 +32,6 @@
 
 
 
-
 const static int MAX_BEHAVIOURS = 20;
 
 class GlowBehaviour;
@@ -113,6 +112,14 @@ public:
     for( int i = 0; i < l; i++ ) { connectors.get(i)->update(doc); }
   }
 
+  JsonVariant pingDoc() { return ping_doc.as<JsonVariant>();}
+
+  void ping() {
+    Serial.println("Pinging!");
+    int l = connectors.size();
+    for( int i = 0; i < l; i++ ) { connectors.get(i)->ping(pingDoc()); }
+  }
+
   void setTime(int hour, int minute, int second) {
     if(hour >= 0) current_time.hour = hour;
     if(minute >= 0 ) current_time.minute = minute;
@@ -125,6 +132,7 @@ public:
     if( day >= 0 ) current_time.day = day;
   }
   CurrentTime* getTime() { return &current_time; }
+
 
 protected:
   GlowStrip *strip;
@@ -141,6 +149,7 @@ protected:
   LinkedList<Feature*> features;
   LinkedList<Connector*> connectors;
   CurrentTime current_time;
+  DynamicJsonDocument ping_doc;
 };
 
 

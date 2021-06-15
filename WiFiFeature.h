@@ -21,6 +21,7 @@ public:
       connected = true;
       Serial.println("Connected to network");
       Serial.println(WiFi.localIP());
+      controller->pingDoc()["ip"] = WiFi.localIP();
     }
   };
 

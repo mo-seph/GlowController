@@ -23,6 +23,7 @@ public:
   Connector() {};
   virtual void update(DynamicJsonDocument doc) {};
   virtual void outputState(JsonVariant v) {};
+  virtual void ping(JsonVariant v) {};
 
   virtual void setController(GlowController *c) {
     controller = c;

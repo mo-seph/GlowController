@@ -7,9 +7,10 @@
 #include "ArduinoJson.h"
 #include "GlowInterfaces.h"
 
-#define MSG_BUFFER_SIZE	(1000)
+#define MSG_BUFFER_SIZE	(1400)
 
-#define PING_CHANNEL "leds/ping"
+#define PING_REQ_CHANNEL "leds/ping_request"
+#define PING_RESP_CHANNEL "leds/ping_response"
 
 
 //GlowController* MQTT_GLOW_CONTROL;
@@ -32,7 +33,7 @@ public:
       //command_channel("leds/1/commands"), state_channel("leds/1/state")
       {
       Serial.println("Creating MQTT Connector");
-      client->setBufferSize(1000);
+      client->setBufferSize(1400);
       Serial.print("Setting server ["); Serial.print(mqtt_server); Serial.print("] and port ["); Serial.print(mqtt_port); Serial.println("]");
       client->setServer(mqtt_server, mqtt_port);
       updateConnection();
@@ -50,8 +51,6 @@ public:
     client_id = String("GlowLight-") + c->getID();
     command_channel = String("leds/") + c->getID() + "/commands";
     state_channel = String("leds/") + c->getID() + "/state";
-    ping_response["id"] = controller->getID();
-    ping_response["name"] = controller->getName();
 
 
     client->setCallback(callback);
@@ -71,12 +70,14 @@ public:
         if (client->connect(client_id.c_str())) {
           Serial.print("MQTT connected publishing on ");
           Serial.println(state_channel);
-          // Once connected, publish an announcement...
-          ping();
+          controller->pingDoc()["mqtt_commands"] = command_channel;
+          controller->pingDoc()["mqtt_state"] = state_channel;
           controller->sendState();
           // ... and resubscribe
           client->subscribe(command_channel.c_str());
-          client->subscribe(PING_CHANNEL);
+          client->subscribe(PING_REQ_CHANNEL);
+          // Once connected, publish an announcement...
+          controller->ping();
         } else {
           Serial.print("failed, rc=");
           Serial.print(client->state());
@@ -89,10 +90,11 @@ public:
 
   }
 
-  void ping() {
+  virtual void ping(JsonVariant doc) {
     if( client->connected() ) {
-      serializeJson(ping_response, msg);
-      client->publish(state_channel.c_str(), msg);
+      Serial.println("MQTT Pinging");
+      serializeJson(doc, msg);
+      client->publish(PING_RESP_CHANNEL, msg);
     }
   }
 

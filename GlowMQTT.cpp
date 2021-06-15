@@ -17,7 +17,7 @@
 /* Set up MQTT */
 WiFiClient espClient;
 static PubSubClient client(espClient);
-#define MSG_BUFFER_SIZE	(1000)
+#define MSG_BUFFER_SIZE	(1400)
 char msg[MSG_BUFFER_SIZE];
 
 
@@ -47,8 +47,8 @@ void sendJsonMQTT(DynamicJsonDocument doc ) {
 */
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  if( strcmp(topic,PING_CHANNEL) == 0 ) {
-    MQTTConnector::mt_s->ping();
+  if( strcmp(topic,PING_REQ_CHANNEL) == 0 ) {
+    MQTTConnector::gc_s->ping();
   }
   else {
     Serial.print("Message arrived [");

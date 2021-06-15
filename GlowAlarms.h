@@ -63,7 +63,8 @@ public:
     Serial.print(", num pixels: "); Serial.print(num_pixels);
     Serial.println();
     */
-    strip->startPixels(strip->positionToPixels(a->start_point),1);
+    int start_pixel = strip->positionToPixels(a->start_point);
+    strip->startPixels(start_pixel,1);
     for(int i = 0; i < border; i++ ) { strip->addPixel(a->frame_color);}
     for(int i = 0; i < strip_length; i++ ) {
       if( i < num_pixels ) strip->addPixel(a->count_color);
@@ -77,7 +78,7 @@ public:
   void stateFromJson(JsonVariant d) {
     if( d.containsKey("time")) {
       alarm.start_time = millis();
-      alarm.end_time = millis() + d["time"].as<int>() * 1000;
+      alarm.end_time = millis() + (int)(d["time"].as<float>() * 1000 );
       alarm.running = true;
       Serial.print("Setting end time as "); Serial.println(alarm.end_time);
     }

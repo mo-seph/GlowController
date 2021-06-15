@@ -20,6 +20,12 @@ public:
     serializeJson(v,Serial);
     Serial.println();
   }
+
+  virtual void ping(JsonVariant doc) {
+    Serial.println("Serial Pinging");
+    serializeJson(doc, Serial);
+    Serial.println();
+  }
 };
 
 #endif
