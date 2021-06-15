@@ -4,6 +4,11 @@
 #include "GlowInterfaces.h"
 #include "time.h"
 
+//Note - this needs to be incuded in the main file too for some reason?
+#include <ArduinoOTA.h>
+
+
+
 class WiFiFeature : public Feature  {
 public:
   WiFiFeature(const char* ssid, const char* password ) :
@@ -22,6 +27,12 @@ public:
       Serial.println("Connected to network");
       Serial.println(WiFi.localIP());
       controller->pingDoc()["ip"] = WiFi.localIP();
+      controller->ping();
+      ArduinoOTA.setHostname(controller->getID());
+      ArduinoOTA.begin();
+    }
+    if( connected ) {
+      ArduinoOTA.handle();
     }
   };
 
