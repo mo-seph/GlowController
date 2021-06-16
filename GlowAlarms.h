@@ -29,7 +29,13 @@ struct Alarm {
 
 class Alarms : public GlowBehaviour {
 public:
-  Alarms(GlowController* s) : GlowBehaviour(s,"Alarms"),  alarm(0.03,30,FRGBW(1,0,0,0),FRGBW(0,1,1,0)) {}
+  Alarms(GlowController* s) :
+    GlowBehaviour(s,"Alarms"),
+    alarm(0.05,20,FRGBW(1,0,0,0),FRGBW(0,1,1,0)),
+    breath(s->getStrip(), FRGBW(0,1,1,0), 3.5) {
+    setStart(0.03);
+    setLength(30);
+  }
   /*
   Fill(GlowStrip* s, FRGBW col) :
     Fill(s), currentColor(col), targetColor(col) { }
@@ -37,6 +43,7 @@ public:
 
   void doUpdate(long updateTime) {
     drawAlarm(&alarm);
+    breath.doUpdate(updateTime);
   }
 
   void drawAlarm(Alarm *a) {
@@ -46,6 +53,7 @@ public:
       a->running = false;
       Serial.println("Alarm finished!");
       controller->sendState();
+      breath.setCycles(5);
     }
     int border = 1;
     int strip_length = a->length - 2*border;
@@ -82,9 +90,21 @@ public:
       alarm.running = true;
       Serial.print("Setting end time as "); Serial.println(alarm.end_time);
     }
-    if( d.containsKey("start")) alarm.start_point = d["start"];
-    if( d.containsKey("length")) alarm.length = d["length"];
+    if( d.containsKey("start")) setStart(d["start"]);
+    if( d.containsKey("length")) setLength(d["length"]);
     if( d.containsKey("running")) alarm.running = d["running"];
+  }
+
+  void setStart(float start) {
+    alarm.start_point = start;
+    int startPixel = strip->positionToPixels(alarm.start_point);
+    breath.setRange(startPixel, startPixel + alarm.length);
+  }
+
+  void setLength(int length) {
+    alarm.length = length;
+    int startPixel = strip->positionToPixels(alarm.start_point);
+    breath.setRange(startPixel, startPixel + length);
   }
 
   void stateToJson(JsonVariant d) {
@@ -97,7 +117,7 @@ public:
 
 protected:
   Alarm alarm;
-
+  Breath breath;
 };
 
 #endif

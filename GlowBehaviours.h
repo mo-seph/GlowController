@@ -5,6 +5,7 @@
 //#include <Adafruit_NeoPixel.h>
 #include <ArduinoJson.h>
 #include <GlowController.h>
+#include <GlowHelpers.h>
 //#include <TimeLib.h>
 
 #include "TimeStruct.h"
@@ -205,50 +206,6 @@ class FillHSV : public Behaviour {
 };
 */
 
-class GlowBall {
-
-protected:
-  AreaRGBW glow;
-  float rate;
-  float direction = 1;
-  bool active;
-
-public:
-  //GlowBall() : GlowBall(AreaARGBW(FRGBW(0,0,0,0),0,0), 0, 1, false) { };
-  GlowBall(AreaRGBW g, float r, int dir, bool act=false) :
-    glow(g), rate(r), direction(dir), active(act){ };
-
-  void updateDynamics(long millis) {
-    if( rate < 0 ) {
-      rate = -rate;
-      direction = -1;
-    }
-    if(! active ) { return; }
-    glow.centre = glow.centre + rate * millis * 0.001 * direction;
-    if( glow.centre > 1.0 ) {
-      glow.centre = 1.0;
-      direction = -1;
-    }
-    if( glow.centre < 0.0 ) {
-      glow.centre = 0.0;
-      direction = 1;
-    }
-  }
-
-  void show(GlowStrip *s) {
-    s->glowRGBWRel(glow,true);
-  }
-
-  void toJson(JsonVariant d) {
-    glow.toJson(d);
-    d["rate"] = rate;
-  }
-
-  void fromJson(JsonVariant d) {
-    glow.fromJson(d);
-    if( d.containsKey("rate")) rate = d["rate"];
-  }
-};
 
 
 
