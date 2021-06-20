@@ -166,7 +166,7 @@ public:
   }
 
   FRGBW timeToColor(long updateTime) {
-    if( updateTime < 10 ) return FRGBW(0,1,0,0);
+    if( updateTime < 10 ) return FRGBW(0,1,1,0);
     if( updateTime < 30 ) return FRGBW(0,1,0,0);
     if( updateTime < 100 ) {
       float factor = (float)(updateTime-30)/70.0;
