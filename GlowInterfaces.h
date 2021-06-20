@@ -21,7 +21,7 @@ protected:
 class Connector {
 public:
   Connector() {};
-  virtual void update(DynamicJsonDocument doc) {};
+  virtual void update() {};
   virtual void outputState(JsonVariant v) {};
   virtual void ping(JsonVariant v) {};
 

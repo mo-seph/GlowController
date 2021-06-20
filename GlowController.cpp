@@ -17,7 +17,7 @@ Example JSON docs:
 */
 
 GlowController::GlowController(GlowStrip* s, const char* id, const char* name) :
-  strip(s), id(id), name(name), behaviours(),  frameRate(25.0), doc(1600), defaultColor(0,0,0,0.2), ping_doc(500) {
+  strip(s), id(id), name(name), behaviours(),  frameRate(25.0),  defaultColor(0,0,0,0.2), ping_doc(500) {
     setTime(13,11,00);
     setDate(2021,05,29);
     ping_doc["id"] = id;
@@ -74,8 +74,8 @@ void GlowController::runBehaviours() {
 }
 
 
-void GlowController::processInput(DynamicJsonDocument d) {
-  Serial.println("Controller processing document");
+void GlowController::processInput(JsonVariant d) {
+  Serial.println("Controller processing document:");
   bool processed = false;
   if( d.containsKey("update") ) {
     Serial.print("Got update for behaviour "); Serial.println((int)d["update"]);
@@ -105,8 +105,8 @@ void GlowController::processInput(DynamicJsonDocument d) {
     processed = true;
   }
   if( d.containsKey("behaviours")) {
-    Serial.println(F("Adding behaviours"));
-    JsonArray behaviours = doc["behaviours"].as<JsonArray>();
+    Serial.println(F("Adding behaviours from:"));
+    JsonArray behaviours = d["behaviours"].as<JsonArray>();
     //serializeJson(behaviours,Serial);
     //Serial.println();
     createBehaviours(behaviours);
@@ -142,6 +142,7 @@ void GlowController::processInput(DynamicJsonDocument d) {
 
 DynamicJsonDocument GlowController::createOutputState() {
   DynamicJsonDocument output(2048);
+  output.clear();
   output["id"] = id;
   //JsonVariant state = output.createNestedObject("state");
 
@@ -259,23 +260,6 @@ void GlowController::loop() {
   time.loopDone();
   time.printOutput();
   time.delayIfNeeded();
-}
-
-void GlowController::update() {
-  if( Serial.available() > 4 ) {
-    if( checkDeserialisation( deserializeJson(doc, Serial) ) )
-      processInput(doc);
-  }
-}
-
-void GlowController::update(const char* input) {
-  if( checkDeserialisation( deserializeJson(doc, input) ) )
-    processInput(doc);
-}
-
-void GlowController::update(byte* input, unsigned int length) {
-  if( checkDeserialisation( deserializeJson(doc, input, length) ) )
-    processInput(doc);
 }
 
 

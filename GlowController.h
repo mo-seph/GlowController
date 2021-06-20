@@ -57,7 +57,7 @@ public:
   void update(byte* input, unsigned int length); //From bytes and length
 
 
-  void processInput(DynamicJsonDocument d);
+  void processInput(JsonVariant d);
   void updateBehaviour(int id, JsonVariant d);
 
   void setBehaviour(int i, GlowBehaviour* b);
@@ -109,7 +109,7 @@ public:
   }
   void updateConnectors() {
     int l = connectors.size();
-    for( int i = 0; i < l; i++ ) { connectors.get(i)->update(doc); }
+    for( int i = 0; i < l; i++ ) { connectors.get(i)->update(); }
   }
 
   JsonVariant pingDoc() { return ping_doc.as<JsonVariant>();}
@@ -142,7 +142,7 @@ protected:
   GlowBehaviour* behaviours[MAX_BEHAVIOURS];
   FRGBW tmpColor;
   float frameRate;
-  DynamicJsonDocument doc;
+  //DynamicJsonDocument doc;
   FRGBW defaultColor;
   bool checkDeserialisation( DeserializationError error );
   TimeKeeping time;

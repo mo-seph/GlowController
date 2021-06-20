@@ -6,12 +6,13 @@
 
 class SerialConnector : public Connector  {
 public:
-  virtual void update(DynamicJsonDocument doc) {
+  virtual void update() {
     //Serial.println("Looking for serial input");
     if( Serial.available() > 4 ) {
-      if( checkDeserialisation( deserializeJson(doc, Serial) ) )
+      DynamicJsonDocument inputDoc(3000);
+      if( checkDeserialisation( deserializeJson(inputDoc, Serial) ) )
         Serial.println("Found input, sending to controller");
-        controller->processInput(doc);
+        controller->processInput(inputDoc.as<JsonVariant>());
     }
   }
 

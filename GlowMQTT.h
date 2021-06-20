@@ -7,7 +7,7 @@
 #include "ArduinoJson.h"
 #include "GlowInterfaces.h"
 
-#define MSG_BUFFER_SIZE	(1400)
+#define MSG_BUFFER_SIZE	(3400)
 
 #define PING_REQ_CHANNEL "leds/ping_request"
 #define PING_RESP_CHANNEL "leds/ping_response"
@@ -39,15 +39,15 @@ public:
       updateConnection();
 
   }
-  static GlowController* gc_s;
-  static MQTTConnector* mt_s;
+  //static GlowController* static_controller;
+  static MQTTConnector* static_mqtt;
 
   /* Should call super; lazy... */
   virtual void setController(GlowController *c) {
     Serial.println("Setting controller for MQTT Connector");
     controller = c;
-    MQTTConnector::gc_s = c;
-    MQTTConnector::mt_s = this;
+    //MQTTConnector::static_controller = c;
+    MQTTConnector::static_mqtt = this;
     client_id = String("GlowLight-") + c->getID();
     command_channel = String("leds/") + c->getID() + "/commands";
     state_channel = String("leds/") + c->getID() + "/state";
@@ -79,9 +79,9 @@ public:
           // Once connected, publish an announcement...
           controller->ping();
         } else {
-          Serial.print("failed, rc=");
-          Serial.print(client->state());
-          Serial.println(" try again in 2 seconds");
+          //Serial.print("failed, rc=");
+          //Serial.print(client->state());
+          //Serial.println(" try again in 2 seconds");
         }
       } else {
         retry_time = millis() + connection_interval;
@@ -99,10 +99,26 @@ public:
   }
 
 
-  virtual void update(DynamicJsonDocument doc) {
+  virtual void update() {
     updateConnection();
     /* IFF we have a connection, then run the MQTT loop */
     if( client->connected() )   client->loop();
+  }
+
+  void gotInput(char* topic, byte* payload, unsigned int length) {
+    if( strcmp(topic,PING_REQ_CHANNEL) == 0 ) {
+      controller->ping();
+    }
+    else {
+      /*
+      Serial.print("Message arrived ["); Serial.print(topic); Serial.print("] ");
+      for (int i = 0; i < length; i++) { Serial.print((char)payload[i]); }
+      Serial.println();
+      */
+      DynamicJsonDocument input(3000);
+      if( checkDeserialisation( deserializeJson(input, payload, length) ) )
+        controller->processInput(input.as<JsonVariant>());
+    }
   }
 
   virtual void outputState(JsonVariant v) {
@@ -134,7 +150,6 @@ protected:
   long retry_time = 0;
   long connection_interval = 2000;
   DynamicJsonDocument ping_response;
-
 };
 
 
