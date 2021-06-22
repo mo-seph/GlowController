@@ -27,10 +27,10 @@ struct Alarm {
   };
 };
 
-class Alarms : public GlowBehaviour {
+class PixelCountdown : public GlowBehaviour {
 public:
-  Alarms(GlowController* s) :
-    GlowBehaviour(s,"Alarms"),
+  PixelCountdown(GlowController* s) :
+    GlowBehaviour(s,"PixelCountdown"),
     alarm(0.05,20,FRGBW(1,0,0,0),FRGBW(0,1,1,0)),
     breath(s->getStrip(), FRGBW(0,1,1,0), 3.5) {
     setStart(0.03);
