@@ -64,7 +64,8 @@ public:
     to try again later
     */
     if(!client->connected() ) {
-      if( retry_time < millis() ) {
+      if( millis() > last_update + connection_interval ) {
+        last_update = millis();
         Serial.print("Attempting MQTT connection...");
         // Attempt to connect
         if (client->connect(client_id.c_str())) {
@@ -84,7 +85,7 @@ public:
           //Serial.println(" try again in 2 seconds");
         }
       } else {
-        retry_time = millis() + connection_interval;
+        //retry_time = millis() + connection_interval;
       }
     }
 
@@ -147,7 +148,7 @@ protected:
   //const char* command_channel;
   //const char* state_channel;
 
-  long retry_time = 0;
+  long last_update = 0;
   long connection_interval = 2000;
   DynamicJsonDocument ping_response;
 };
