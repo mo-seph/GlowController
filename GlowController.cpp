@@ -3,6 +3,7 @@
 #include "Arduino.h"
 #include "GlowMQTT.h"
 #include "PixelCountdown.h"
+#include "ColorAlarm.h"
 
 
 
@@ -240,6 +241,9 @@ GlowBehaviour* GlowController::makeBehaviourFromType(const char* type) {
   } else if(strcmp(type,"PixelCountdown") == 0 ) {
     Serial.println("Making PixelCountdown");
     return new PixelCountdown(this);
+  } else if(strcmp(type,"ColorAlarm") == 0 ) {
+    Serial.println("Making ColorAlarm");
+    return new ColorAlarm(this);
   }
   Serial.println("Making Unknown behaviour");
   return new GlowBehaviour(this,"Unknown");
