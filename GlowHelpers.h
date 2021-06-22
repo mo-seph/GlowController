@@ -80,7 +80,6 @@ public:
   void setRange(int start, int end) {
     startPixel = start;
     endPixel = end;
-    Serial.print("Set range from "); Serial.print(start); Serial.print(" to "); Serial.println(end);
   }
   void setRange(float start, float end) {
     setRange(strip->positionToPixels(start),strip->positionToPixels(end));
@@ -88,6 +87,11 @@ public:
 
   void setCycles(int number) {
     count = number;
+    active = true;
+  }
+
+  void activate() {
+    count = -1;
     active = true;
   }
 
