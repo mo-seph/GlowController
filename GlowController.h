@@ -121,17 +121,20 @@ public:
   }
 
   void setTime(int hour, int minute, int second) {
+    hasTime = true;
     if(hour >= 0) current_time.hour = hour;
     if(minute >= 0 ) current_time.minute = minute;
     if( second >= 0 ) current_time.second = second;
   }
 
   void setDate(int year, int month, int day) {
+    hasTime = true;
     if(year >= 0 ) current_time.year = year;
     if( month >= 0 ) current_time.month = month;
     if( day >= 0 ) current_time.day = day;
   }
   CurrentTime* getTime() { return &current_time; }
+  bool timeSet() { return hasTime; }
 
 
 protected:
@@ -149,6 +152,7 @@ protected:
   LinkedList<Feature*> features;
   LinkedList<Connector*> connectors;
   CurrentTime current_time;
+  bool hasTime = false;
   DynamicJsonDocument ping_doc;
 };
 
