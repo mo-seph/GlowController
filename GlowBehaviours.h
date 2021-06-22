@@ -49,6 +49,19 @@ public:
   bool isActive() { return active; };
   virtual const char* getType() {return type;};
 
+  /* Quick function to make it easy to create output at certain intervals.
+   * Call it with the interval, if it's been long enough, it will update
+   * the last output time, and return true; otherwise, returns false
+   */
+  bool timedOutput(long interval) {
+    if(millis() > lastOutput + interval ) {
+      lastOutput = millis();
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 
 
 
@@ -59,7 +72,7 @@ protected:
   char name[50] = "NoName";
   bool active;
   const char* type;
-
+  long lastOutput = 0;
 };
 
 
