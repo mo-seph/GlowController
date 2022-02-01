@@ -142,7 +142,7 @@ void GlowController::processInput(JsonVariant d) {
 }
 
 DynamicJsonDocument GlowController::createOutputState() {
-  DynamicJsonDocument output(2048);
+  DynamicJsonDocument output(4096);
   output.clear();
   output["id"] = id;
   //JsonVariant state = output.createNestedObject("state");

@@ -82,6 +82,8 @@ public:
     //targetColor.toJson(d);
     d["start"] = startPos;
     d["end"] = endPos;
+    d["hour"] = hour;
+    d["minute"] = minute;
     d["timeBefore"] = timeBefore;
     d["timeAfter"] = timeAfter;
   }
