@@ -213,6 +213,13 @@ void GlowController::createBehaviour(JsonVariant d) {
   //delay(200);
   Serial.println("Setting behaviour");
   setBehaviour(id,b);
+  if( d.containsKey("active") ) {
+    if (d["active"]) {
+      b->setActive(true);
+    } else {
+      b->setActive(false);
+    }
+  } 
   //delay(200);
 }
 

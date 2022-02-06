@@ -33,3 +33,9 @@
 *.exe
 *.out
 *.app
+
+.development
+.DS_Store
+
+.pio 
+.vscode
