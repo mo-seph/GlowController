@@ -19,8 +19,8 @@
 #ifndef GlowController_h
 #define GlowController_h
 #include "Arduino.h"
-#include "GlowBehaviours.h"
 #include "GlowInterfaces.h"
+#include "GlowBehaviours.h"
 #include "GlowStrip.h"
 #include "TimeKeeping.h"
 #include <ArduinoJson.h>

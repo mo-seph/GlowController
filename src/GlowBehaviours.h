@@ -6,6 +6,7 @@
 #include <ArduinoJson.h>
 #include <GlowController.h>
 #include <GlowHelpers.h>
+#include "ColorStructures.h"
 //#include <TimeLib.h>
 
 #include "TimeStruct.h"
@@ -118,13 +119,23 @@ public:
 
   void stateFromJson(JsonVariant d) {
     if( d.containsKey("time")) nextInterpTime = d["time"];
+    // Start from current colour
     FRGBW tmpCol = targetColor;
+    // Update it from the JSON coming in
     tmpCol.fromJson(d);
+    // If the HSV has been updated, then use that as truth, and convert
+    // into the RGBW colour
+    if( hsvCol.fromJson(d) ) {
+      Serial.println("Got a HSV update...");
+      hsvCol.toRGBW(tmpCol);
+      tmpCol.toSerial();
+    }
     setColor(tmpCol);
   }
 
   void stateToJson(JsonVariant d) {
     targetColor.toJson(d);
+    hsvCol.toJson(d);
     d["time"] = (nextInterpTime > 0) ? nextInterpTime : interpTime;
   }
 
@@ -132,6 +143,7 @@ protected:
   FRGBW currentColor;
   FRGBW startColor;
   FRGBW targetColor;
+  FHSV hsvCol;
   float interpTime =0;
   float nextInterpTime = -1;
   long interpStart;

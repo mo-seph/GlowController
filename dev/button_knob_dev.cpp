@@ -1,4 +1,4 @@
-
+#pragma warn "Hello"
 //#include "GlowStrip.h"
 #define FASTLED_ESP32_I2S true
 
@@ -15,6 +15,7 @@
 
 
 void setup() {
+    Serial.begin(11520);
 }
 
 void loop() {
