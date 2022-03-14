@@ -5,7 +5,7 @@
 #include <PubSubClient.h>
 #include "GlowController.h"
 #include "ArduinoJson.h"
-#include "GlowInterfaces.h"
+#include "connectors/GlowConnectors.h"
 
 #define MSG_BUFFER_SIZE	(3400)
 

@@ -1,9 +1,10 @@
 #ifndef GlowAlarms_h
 #define GlowAlarms_h
 #include "Arduino.h"
-#include "GlowStrip.h"
+#include "strip/GlowStrip.h"
 #include <ArduinoJson.h>
 #include <GlowController.h>
+#include "behaviours/GlowBehaviours.h"
 
 #include "TimeStruct.h"
 

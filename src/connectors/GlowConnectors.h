@@ -1,22 +1,11 @@
-#ifndef GLOW_FEATURE_H
-#define GLOW_FEATURE_H
+#ifndef GLOW_CONNECTOR_H
+#define GLOW_CONNECTOR_H
 
-#include "GlowController.h"
+#include "connectors/GlowConnectors.h"
 #include "ArduinoJson.h"
 
-class GlowController;
+class BaseController;
 
-class Feature {
-public:
-  Feature() {};
-  virtual void update();
-  void setController(GlowController *c) {
-    controller = c;
-  };
-
-protected:
-  GlowController *controller;
-};
 
 class Connector {
 public:
@@ -25,7 +14,7 @@ public:
   virtual void outputState(JsonVariant v) {};
   virtual void ping(JsonVariant v) {};
 
-  virtual void setController(GlowController *c) {
+  virtual void setController(BaseController *c) {
     controller = c;
   };
 
@@ -42,7 +31,7 @@ public:
   }
 
 protected:
-  GlowController *controller;
+  BaseController *controller;
 };
 
 

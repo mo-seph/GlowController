@@ -1,9 +1,10 @@
 #include "GlowController.h"
-#include "GlowBehaviours.h"
-#include "Arduino.h"
-#include "GlowMQTT.h"
-#include "PixelCountdown.h"
-#include "ColorAlarm.h"
+#include "behaviours/GlowBehaviours.h"
+//#include "features/GlowFeature.h"
+//#include "Arduino.h"
+#include "connectors/GlowMQTT.h"
+#include "behaviours/PixelCountdown.h"
+#include "behaviours/ColorAlarm.h"
 
 
 
@@ -17,13 +18,9 @@ Example JSON docs:
 
 */
 
-GlowController::GlowController(GlowStrip* s, const char* id, const char* name) :
-  strip(s), id(id), name(name), behaviours(),  frameRate(25.0),  defaultColor(0,0,0,0.2), ping_doc(500) {
-    setTime(13,11,00);
-    setDate(2021,05,29);
-    ping_doc["id"] = id;
-    ping_doc["name"] = name;
-};
+GlowController::GlowController( GlowStrip* s, const char* id, const char* name) : 
+    BaseController(id,name), strip(s), behaviours(),   defaultColor(0,0,0,0.2) {
+}
 
 void GlowController::createBehaviours(JsonVariant d) {
   Serial.println(F("Creating behaviours from JSON: "));
@@ -75,9 +72,8 @@ void GlowController::runBehaviours() {
 }
 
 
-void GlowController::processInput(JsonVariant d) {
-  Serial.println("Controller processing document:");
-  serializeJson(d,Serial);
+bool GlowController::processInput(JsonVariant d) {
+
   bool processed = false;
   if( d.containsKey("update") ) {
     Serial.print("Got update for behaviour "); Serial.println((int)d["update"]);
@@ -122,18 +118,7 @@ void GlowController::processInput(JsonVariant d) {
     sendState();
     processed = true;
   }
-  if( d.containsKey("setTime")) {
-    JsonVariant t = d["setTime"];
-    int y = t["year"] | -1;
-    int mn = t["month"] | -1;
-    int dy = t["day"] | -1;
-    int h = t["second"] | -1;
-    int m = t["minute"] | -1;
-    int s = t["second"] | -1;
-    setTime(h,m,s);
-    setDate(dy,mn,y);
-    processed = true;
-  }
+
   if( d.containsKey("state")) {
     sendState();
     processed = true;
@@ -145,15 +130,11 @@ void GlowController::processInput(JsonVariant d) {
     Serial.println("-----");
   }
 
-
+  return processed;
 }
 
 DynamicJsonDocument GlowController::createOutputState() {
-  DynamicJsonDocument output(4096);
-  output.clear();
-  output["id"] = id;
-  //JsonVariant state = output.createNestedObject("state");
-
+  DynamicJsonDocument output = BaseController::createOutputState();
   for( int i = 0; i < MAX_BEHAVIOURS; i++ ) {
     if(behaviours[i]) {
       output["state"][i]["active"] = behaviours[i]->isActive();
@@ -169,27 +150,7 @@ DynamicJsonDocument GlowController::createOutputState() {
   return output;
 }
 
-void GlowController::sendState() {
-  Serial.println(F("Controller outputting state"));
-  //Serial.flush();
-  //Serial.send_now();
-  DynamicJsonDocument output = createOutputState();
-  JsonVariant opv = output.as<JsonVariant>();
-  int l = connectors.size();
-  for( int i = 0; i < l; i++ ) {
-    connectors.get(i)->outputState(opv);
-  }
-  /*
-  Serial.println("State on serial");
-  serializeJson(output,Serial);
-  Serial.println();
-  Serial.println("State on MQTT");
-  sendJsonMQTT(output);
-  //Serial.flush();
-  //Serial.send_now();
-  Serial.println(F("State output done"));
-  */
-}
+
 
 void GlowController::updateBehaviour(int id, JsonVariant d) {
   if( behaviours[id] != NULL ) {
@@ -264,32 +225,13 @@ GlowBehaviour* GlowController::makeBehaviourFromType(const char* type) {
   return new GlowBehaviour(this,"Unknown");
 }
 
-void GlowController::loop() {
-  time.loopStart();
-  time.inputStart();
-  updateFeatures();
-  updateConnectors();
-  time.inputDone();
 
-  runBehaviours();
 
+void GlowController::extraLoopCode() {
   time.showStart();
+  runBehaviours();
   strip->show();
-  time.showDone();
-  time.loopDone();
-  time.printOutput();
-  time.delayIfNeeded();
+
 }
 
 
-bool GlowController::checkDeserialisation(DeserializationError error) {
-  // Test if parsing succeeds.
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    return false;
-  } else {
-    Serial.println("Got JSON input");
-    return true;
-  }
-}

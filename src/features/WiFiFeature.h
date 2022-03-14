@@ -1,7 +1,7 @@
 #ifndef WIFI_FEATURE_H
 #define WIFI_FEATURE_H
 
-#include "GlowInterfaces.h"
+#include "features/GlowFeature.h"
 #include "time.h"
 
 //Note - this needs to be incuded in the main file too for some reason?

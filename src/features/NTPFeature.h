@@ -1,7 +1,8 @@
 #ifndef NTP_FEATURE_H
 #define NTP_FEATURE_H
 
-#include "GlowInterfaces.h"
+#include "features/GlowFeature.h"
+#include "GlowController.h"
 #include "time.h"
 
 void ntpCallback(timeval*) {

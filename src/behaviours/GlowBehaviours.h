@@ -1,11 +1,11 @@
 #ifndef GlowBehaviour_h
 #define GlowBehaviour_h
 #include "Arduino.h"
-#include "GlowStrip.h"
+#include "strip/GlowStrip.h"
 //#include <Adafruit_NeoPixel.h>
 #include <ArduinoJson.h>
 #include <GlowController.h>
-#include <GlowHelpers.h>
+#include "strip/GlowHelpers.h"
 #include "ColorStructures.h"
 //#include <TimeLib.h>
 

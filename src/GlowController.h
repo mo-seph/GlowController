@@ -18,15 +18,10 @@
 
 #ifndef GlowController_h
 #define GlowController_h
-#include "Arduino.h"
-#include "GlowInterfaces.h"
-#include "GlowBehaviours.h"
-#include "GlowStrip.h"
-#include "TimeKeeping.h"
+#include "BaseController.h"
+#include "behaviours/GlowBehaviours.h"
+#include "strip/GlowStrip.h"
 #include <ArduinoJson.h>
-//#include <OctoWS2811.h>
-#include <EEPROM.h>
-//#include <TimeLib.h>
 #include <LinkedList.h>
 #include <TimeStruct.h>
 
@@ -35,11 +30,16 @@
 const static int MAX_BEHAVIOURS = 20;
 
 class GlowBehaviour;
+//class GlowFeature;
 
 
-class GlowController {
+class GlowController : public BaseController {
 public:
-  GlowController(GlowStrip* s, const char* id, const char* name);
+  GlowController(GlowStrip* s, const char* id, const char* name); 
+  virtual void extraLoopCode();
+  virtual bool processInput(JsonVariant d);
+  virtual DynamicJsonDocument createOutputState();
+
   void runBehaviours();
   //void initialise(GlowStrip* s);
 
@@ -49,15 +49,6 @@ public:
   GlowBehaviour* getBehaviour(int id) {return behaviours[id];};
 
 
-  void loop();
-
-  /* Externally callable methods to send in JSON */
-  void update(); // From Serial
-  void update(const char* input); //From a string
-  void update(byte* input, unsigned int length); //From bytes and length
-
-
-  void processInput(JsonVariant d);
   void updateBehaviour(int id, JsonVariant d);
 
   void setBehaviour(int i, GlowBehaviour* b);
@@ -66,8 +57,6 @@ public:
   void activateBehaviour(int i);
   void deActivateBehaviour(int i);
 
-  void sendState();
-  DynamicJsonDocument createOutputState();
 
   void storeColor(JsonVariant d,int address=0) {
     if(d["r"]) tmpColor.r = d["r"];
@@ -94,66 +83,14 @@ public:
   const char* getID() {return id;}
   const char* getName() {return name;}
 
-  TimeKeeping* timeKeeping() { return &time; }
-  void addFeature(Feature *f) {
-    f->setController(this);
-    features.add(f);
-  }
-  void updateFeatures() {
-    int l = features.size();
-    for( int i = 0; i < l; i++ ) { features.get(i)->update(); }
-  }
-  void addConnector(Connector *f) {
-    f->setController(this);
-    connectors.add(f);
-  }
-  void updateConnectors() {
-    int l = connectors.size();
-    for( int i = 0; i < l; i++ ) { connectors.get(i)->update(); }
-  }
-
-  JsonVariant pingDoc() { return ping_doc.as<JsonVariant>();}
-
-  void ping() {
-    Serial.println("Pinging!");
-    int l = connectors.size();
-    for( int i = 0; i < l; i++ ) { connectors.get(i)->ping(pingDoc()); }
-  }
-
-  void setTime(int hour, int minute, int second) {
-    hasTime = true;
-    if(hour >= 0) current_time.hour = hour;
-    if(minute >= 0 ) current_time.minute = minute;
-    if( second >= 0 ) current_time.second = second;
-  }
-
-  void setDate(int year, int month, int day) {
-    hasTime = true;
-    if(year >= 0 ) current_time.year = year;
-    if( month >= 0 ) current_time.month = month;
-    if( day >= 0 ) current_time.day = day;
-  }
-  CurrentTime* getTime() { return &current_time; }
-  bool timeSet() { return hasTime; }
-
 
 protected:
+
   GlowStrip *strip;
-  const char* id;
-  const char* name;
-  unsigned long last_update = 0;
   GlowBehaviour* behaviours[MAX_BEHAVIOURS];
   FRGBW tmpColor;
-  float frameRate;
   //DynamicJsonDocument doc;
   FRGBW defaultColor;
-  bool checkDeserialisation( DeserializationError error );
-  TimeKeeping time;
-  LinkedList<Feature*> features;
-  LinkedList<Connector*> connectors;
-  CurrentTime current_time;
-  bool hasTime = false;
-  DynamicJsonDocument ping_doc;
 };
 
 

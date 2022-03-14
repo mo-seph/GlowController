@@ -1,7 +1,7 @@
 #ifndef CONTROL_MANAGER_H
 #define CONTROL_MANAGER_H
 
-#include "GlowInterfaces.h"
+#include "features/GlowFeature.h"
 #include <ArduinoJson.h>
 #include <Bounce2.h>
 

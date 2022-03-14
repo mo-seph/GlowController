@@ -1,7 +1,7 @@
 #ifndef SERIAL_CONNECTOR_H
 #define SERIAL_CONNECTOR_H
 
-#include "GlowInterfaces.h"
+#include "connectors/GlowConnectors.h"
 #include "ArduinoJson.h"
 
 class SerialConnector : public Connector  {
