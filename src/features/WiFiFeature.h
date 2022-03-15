@@ -18,7 +18,7 @@ public:
   virtual void update() {
     if(!connected && !trying ) {
       trying = true;
-      Serial.println("Setting up WiFi");
+      Serial.print("Setting up WiFi with SSID '"); Serial.print(ssid); Serial.print("' and password: '"); Serial.print(password); Serial.println("'");
       WiFi.begin(ssid, password);
     }
     if( trying && WiFi.status() == WL_CONNECTED ) {

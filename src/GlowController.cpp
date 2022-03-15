@@ -20,6 +20,7 @@ Example JSON docs:
 
 GlowController::GlowController( GlowStrip* s, const char* id, const char* name) : 
     BaseController(id,name), strip(s), behaviours(),   defaultColor(0,0,0,0.2) {
+      Serial.println("GlowController created...");
 }
 
 
@@ -32,9 +33,9 @@ void GlowController::setupInitialColor() {
   }
 
 void GlowController::createBehaviours(JsonVariant d) {
-  Serial.println(F("Creating behaviours from JSON: "));
+  Serial.println(F("Creating Behaviours from JSON: "));
   serializeJson(d,Serial);
-  Serial.println("--");
+  Serial.println("\n--");
   for(JsonVariant v : d.as<JsonArray>()) { createBehaviour(v); }
 }
 

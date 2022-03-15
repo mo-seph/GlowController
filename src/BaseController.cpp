@@ -33,6 +33,9 @@ Things for init in glow:
 
 BaseController::BaseController( const char* id, const char* name) :
   id(id), name(name), frameRate(25.0),  ping_doc(500), controlsSetup(2000) {
+    Serial.begin(115200);
+    while(!Serial && millis() < 1000 ) {}
+    Serial.print("Base Controller created with id "); Serial.print(id); Serial.print(", and name: "); Serial.println(name);
     setTime(13,11,00);
     setDate(2021,05,29);
     ping_doc["id"] = id;
@@ -120,11 +123,11 @@ void BaseController::setupBaseFeatures(
   }
 
 void BaseController::setupControls(const char* input ) {
-  Serial.println(F("-----\nLoading Controls\n-------"));
+  Serial.println(F("------+ Loading Controls +-------"));
   if( getConfig(controlsSetup, input, "/cont.json") ) {
     addFeature(new Controllers(controlsSetup.as<JsonVariant>()));
   } else {
     Serial.println("!!! Problem loading Controls");
   }
-  Serial.println(F("-----\nDone Controls\n-------"));
+  Serial.println(F("------+ Done Controls +-------"));
 }

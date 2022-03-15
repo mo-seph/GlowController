@@ -50,15 +50,15 @@ public:
   void runBehaviours();
 
 
-  void setupBehaviours(const char* input ) {
-    Serial.println(F("-----\nLoading Behaviours\n-------"));
+  void setupBehaviours(const char* input=NULL ) {
+    Serial.println(F("------+ Loading Behaviours +-------"));
     DynamicJsonDocument initialState(8000);
     if( getConfig(initialState, input, "/conf.json") ) {
       processInput(initialState.as<JsonVariant>());
     } else {
       Serial.println("!!! Problem loading Behaviours");
     }
-    Serial.println(F("-----\nDone Behaviours\n-------"));
+    Serial.println(F("------+ Done Behaviours +-------"));
   }
 
   void createBehaviour(JsonVariant d);

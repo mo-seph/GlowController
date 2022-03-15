@@ -43,14 +43,16 @@ public:
   static MQTTConnector* static_mqtt;
 
   /* Should call super; lazy... */
-  virtual void setController(GlowController *c) {
+  virtual void setController(BaseController *c) {
     Serial.println("Setting controller for MQTT Connector");
     controller = c;
     //MQTTConnector::static_controller = c;
     MQTTConnector::static_mqtt = this;
     client_id = String("GlowLight-") + c->getID();
     command_channel = String("leds/") + c->getID() + "/commands";
+    Serial.print("Command channel: "); Serial.println(command_channel);
     state_channel = String("leds/") + c->getID() + "/state";
+    Serial.print("State channel: "); Serial.println(state_channel);
 
 
     client->setCallback(callback);
@@ -69,8 +71,10 @@ public:
         Serial.print("Attempting MQTT connection...");
         // Attempt to connect
         if (client->connect(client_id.c_str())) {
-          Serial.print("MQTT connected publishing on ");
-          Serial.println(state_channel);
+          Serial.print("MQTT connected publishing on: ");
+          Serial.print(state_channel);
+          Serial.print(", listening on: ");
+          Serial.println(command_channel);
           controller->pingDoc()["mqtt_commands"] = command_channel;
           controller->pingDoc()["mqtt_state"] = state_channel;
           controller->sendState();
@@ -80,9 +84,9 @@ public:
           // Once connected, publish an announcement...
           controller->ping();
         } else {
-          //Serial.print("failed, rc=");
-          //Serial.print(client->state());
-          //Serial.println(" try again in 2 seconds");
+          Serial.print("failed, rc=");
+          Serial.print(client->state());
+          Serial.println(" try again in 2 seconds");
         }
       } else {
         //retry_time = millis() + connection_interval;

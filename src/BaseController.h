@@ -45,9 +45,11 @@ public:
   virtual bool processInput(JsonVariant d);
 
   /* Externally callable methods to send in JSON */
+  /*
   void update(); // From Serial
   void update(const char* input); //From a string
   void update(byte* input, unsigned int length); //From bytes and length
+  */
 
 
   /* And to send it out... */
@@ -61,14 +63,19 @@ public:
 
   /* Initialisation */
   virtual void initialise() {
+    Serial.begin(115200);
+    Serial.println("Controller Initialising");
     timeKeeping()->logState = 0;
     timeKeeping()->logTime = 0;
+    if(!SPIFFS.begin() ) {
+      Serial.println("Couldn't start filesystem :/");
+    }
   }
 
   void setupBaseFeatures(   const char* ssid, const char* password, 
     const char* mqtt_server, int mqtt_port,
     int gmtOffset, int daylightOffset,const char* ntp_server);
-  void setupControls(const char* input );
+  void setupControls(const char* input=NULL );
 
   TimeKeeping* timeKeeping() { return &time; }
   void addFeature(Feature *f) {
@@ -80,6 +87,7 @@ public:
     for( int i = 0; i < l; i++ ) { features.get(i)->update(); }
   }
   void addConnector(Connector *f) {
+    Serial.println("Adding feature and setting controller");
     f->setController(this);
     connectors.add(f);
   }
@@ -116,6 +124,7 @@ public:
   bool getConfig(JsonDocument& target, const char* data, const char* filename) {
     bool isOK = false;
     if( data != NULL ) {
+      Serial.println("Configuring from string");
       DeserializationError error =  deserializeJson(target, data);
       if( error ) {
         Serial.print(F("deserializeJson() failed from string: ")); Serial.println(error.f_str()); 
@@ -127,6 +136,7 @@ public:
         Serial.print(F("File missing: ")); Serial.println(filename);
       } else {
         File f = SPIFFS.open(filename, "r");
+        Serial.print("Configuring from file: "); Serial.println(filename);
         DeserializationError error = deserializeJson(target, f);
         if( error ) {
           Serial.print(F("deserializeJson() failed from file ")); Serial.print(filename); Serial.print(": "); Serial.println(error.f_str()); 
