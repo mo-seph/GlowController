@@ -26,11 +26,18 @@
 #include <TimeStruct.h>
 
 
-
 const static int MAX_BEHAVIOURS = 20;
 
 class GlowBehaviour;
 //class GlowFeature;
+
+/*
+Init would be:
+c.initialise();
+c.addBaseFeatures(...)
+c.setupControls(...)
+c.setupBehaviours(...)
+*/
 
 
 class GlowController : public BaseController {
@@ -41,7 +48,18 @@ public:
   virtual DynamicJsonDocument createOutputState();
 
   void runBehaviours();
-  //void initialise(GlowStrip* s);
+
+
+  void setupBehaviours(const char* input ) {
+    Serial.println(F("-----\nLoading Behaviours\n-------"));
+    DynamicJsonDocument initialState(8000);
+    if( getConfig(initialState, input, "/conf.json") ) {
+      processInput(initialState.as<JsonVariant>());
+    } else {
+      Serial.println("!!! Problem loading Behaviours");
+    }
+    Serial.println(F("-----\nDone Behaviours\n-------"));
+  }
 
   void createBehaviour(JsonVariant d);
   void createBehaviours(JsonVariant d);
@@ -79,9 +97,8 @@ public:
     Serial.println("]");
     return tColor;
   }
+  void setupInitialColor(); 
   GlowStrip* getStrip() {return strip;}
-  const char* getID() {return id;}
-  const char* getName() {return name;}
 
 
 protected:

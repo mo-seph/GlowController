@@ -1,8 +1,12 @@
 #include "GlowController.h"
 //#include "behaviours/GlowBehaviours.h"
-//#include "features/GlowFeature.h"
+#include "time.h"
+#include "features/GlowFeature.h"
+#include "features/NTPFeature.h"
+#include "features/WiFiFeature.h"
+#include "connectors/SerialConnector.h"
 //#include "Arduino.h"
-//#include "connectors/GlowMQTT.h"
+#include "connectors/GlowMQTT.h"
 //#include "behaviours/PixelCountdown.h"
 //#include "behaviours/ColorAlarm.h"
 
@@ -18,8 +22,17 @@ Example JSON docs:
 
 */
 
+/*
+Things for init in base:
+- setupBaseFeatures()
+- getConfig( ... controls )
+Things for init in glow:
+- setupBehaviours()
+- initColor()
+*/
+
 BaseController::BaseController( const char* id, const char* name) :
-  id(id), name(name), frameRate(25.0),  ping_doc(500) {
+  id(id), name(name), frameRate(25.0),  ping_doc(500), controlsSetup(2000) {
     setTime(13,11,00);
     setDate(2021,05,29);
     ping_doc["id"] = id;
@@ -89,6 +102,29 @@ bool BaseController::checkDeserialisation(DeserializationError error) {
   }
 }
 
+/*
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 3600;
+const int   daylightOffset_sec = 3600;
+*/
 
+void BaseController::setupBaseFeatures(
+    const char* ssid, const char* password, 
+    const char* mqtt_server, int mqtt_port,
+    int gmtOffset, int daylightOffset=-1,const char* ntp_server="pool.ntp.org"
+    ) {
+  addConnector(new SerialConnector());
+  addFeature(new WiFiFeature(ssid,password));
+  addConnector(new MQTTConnector(&client, mqtt_server, mqtt_port));
+  addFeature(new NTPFeature(ntp_server,gmtOffset * 3600,daylightOffset * 3600));
+  }
 
-
+void BaseController::setupControls(const char* input ) {
+  Serial.println(F("-----\nLoading Controls\n-------"));
+  if( getConfig(controlsSetup, input, "/cont.json") ) {
+    addFeature(new Controllers(controlsSetup.as<JsonVariant>()));
+  } else {
+    Serial.println("!!! Problem loading Controls");
+  }
+  Serial.println(F("-----\nDone Controls\n-------"));
+}

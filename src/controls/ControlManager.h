@@ -2,8 +2,11 @@
 #define CONTROL_MANAGER_H
 
 #include "features/GlowFeature.h"
+#include "BaseController.h"
 #include <ArduinoJson.h>
 #include <Bounce2.h>
+
+class BaseController;
 
 class ControlElement
 {
@@ -230,12 +233,8 @@ public:
             }
         }
     }
+    void sendUpdate(JsonVariant v );
 
-    void sendUpdate(JsonVariant v ) {
-        Serial.println("Sending control message");
-        serializeJson(v, Serial);
-        controller->processInput(v);
-    }
 protected:
     ControlElement *controls[MAX_CONTROLS];
 };

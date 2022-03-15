@@ -15,8 +15,8 @@
 /* Set up WiFi */
 
 /* Set up MQTT */
-WiFiClient espClient;
-static PubSubClient client(espClient);
+//WiFiClient espClient;
+//static PubSubClient client(espClient);
 #define MSG_BUFFER_SIZE	(3400)
 char msg[MSG_BUFFER_SIZE];
 

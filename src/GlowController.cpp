@@ -22,6 +22,15 @@ GlowController::GlowController( GlowStrip* s, const char* id, const char* name) 
     BaseController(id,name), strip(s), behaviours(),   defaultColor(0,0,0,0.2) {
 }
 
+
+void GlowController::setupInitialColor() {
+    Serial.println(F("Starting up"));
+    FRGBW startupColor = FRGBW(0,0,0,0.5);
+    Fill* base = (Fill*)getBehaviour(0);
+    base->fadeIn(startupColor,16);
+    base->setInterpTime(.2); 
+  }
+
 void GlowController::createBehaviours(JsonVariant d) {
   Serial.println(F("Creating behaviours from JSON: "));
   serializeJson(d,Serial);

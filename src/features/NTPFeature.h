@@ -4,6 +4,7 @@
 #include "features/GlowFeature.h"
 #include "GlowController.h"
 #include "time.h"
+#include "sntp.h"
 
 void ntpCallback(timeval*) {
   Serial.println("NTP UPDATED");
@@ -14,6 +15,7 @@ public:
   NTPFeature(const char* ntpServer, const long gmtOffset, const int daylightOffset ) :
     Feature(), ntpServer(ntpServer), gmtOffset(gmtOffset), daylightOffset(daylightOffset) {
       configTime(gmtOffset, daylightOffset, ntpServer);
+      // TODO: why doesn't this work? 
       sntp_set_time_sync_notification_cb(ntpCallback);
   };
 

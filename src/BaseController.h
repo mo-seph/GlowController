@@ -6,13 +6,32 @@
 #define BaseController_h
 #include "Arduino.h"
 #include "connectors/GlowConnectors.h"
+#include "controls/ControlManager.h"
 #include "features/GlowFeature.h"
+//#include "connectors/GlowMQTT.h"
 #include "TimeKeeping.h"
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 //#include <TimeLib.h>
 #include <LinkedList.h>
 #include <TimeStruct.h>
+#include <SPIFFS.h>
+#include <PubSubClient.h>
+#include <WiFi.h>
+#include <ArduinoOTA.h>
+
+static WiFiClient esp;
+static PubSubClient client(esp);
+
+
+/*
+Init would be:
+c.initialise();
+c.addBaseFeatures(...)
+c.setupControls(...)
+*/
+
+class Controls;
 
 class BaseController {
 public:
@@ -35,6 +54,21 @@ public:
   void sendState();
   virtual DynamicJsonDocument createOutputState();
 
+
+  /* Utility functions */
+  const char* getID() {return id;}
+  const char* getName() {return name;}
+
+  /* Initialisation */
+  virtual void initialise() {
+    timeKeeping()->logState = 0;
+    timeKeeping()->logTime = 0;
+  }
+
+  void setupBaseFeatures(   const char* ssid, const char* password, 
+    const char* mqtt_server, int mqtt_port,
+    int gmtOffset, int daylightOffset,const char* ntp_server);
+  void setupControls(const char* input );
 
   TimeKeeping* timeKeeping() { return &time; }
   void addFeature(Feature *f) {
@@ -79,6 +113,31 @@ public:
   bool timeSet() { return hasTime; }
 
 
+  bool getConfig(JsonDocument& target, const char* data, const char* filename) {
+    bool isOK = false;
+    if( data != NULL ) {
+      DeserializationError error =  deserializeJson(target, data);
+      if( error ) {
+        Serial.print(F("deserializeJson() failed from string: ")); Serial.println(error.f_str()); 
+      }
+      else { isOK = true; }
+    }
+    else {
+      if( ! SPIFFS.exists(filename)) {
+        Serial.print(F("File missing: ")); Serial.println(filename);
+      } else {
+        File f = SPIFFS.open(filename, "r");
+        DeserializationError error = deserializeJson(target, f);
+        if( error ) {
+          Serial.print(F("deserializeJson() failed from file ")); Serial.print(filename); Serial.print(": "); Serial.println(error.f_str()); 
+        }
+        else { isOK = true; }
+      }
+    }
+    return isOK;
+  }
+
+
 protected:
   const char* id;
   const char* name;
@@ -91,6 +150,8 @@ protected:
   CurrentTime current_time;
   bool hasTime = false;
   DynamicJsonDocument ping_doc;
+  DynamicJsonDocument controlsSetup;
+ 
 
 };
 
