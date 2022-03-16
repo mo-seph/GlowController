@@ -44,12 +44,6 @@ public:
   // Main message that takes in JSON
   virtual bool processInput(JsonVariant d);
 
-  /* Externally callable methods to send in JSON */
-  /*
-  void update(); // From Serial
-  void update(const char* input); //From a string
-  void update(byte* input, unsigned int length); //From bytes and length
-  */
 
 
   /* And to send it out... */

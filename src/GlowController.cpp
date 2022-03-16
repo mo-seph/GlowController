@@ -218,6 +218,9 @@ GlowBehaviour* GlowController::makeBehaviourFromType(const char* type) {
   } else if(strcmp(type,"Watchdog") == 0) {
     Serial.println("Making Watchdog");
     return new Watchdog(this);
+  } else if(strcmp(type,"WatchdogPixel") == 0) {
+    Serial.println("Making WatchdogPixel");
+    return new WatchdogPixel(this);
   } else if(strcmp(type,"PixelClock") == 0) {
     Serial.println("Making PixelClock");
     return new PixelClock(this);

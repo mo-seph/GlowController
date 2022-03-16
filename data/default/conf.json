@@ -12,7 +12,14 @@
         "active":false,
         "type":"Glow",
         "name":"Glow 1",
-        "data":{"r":0.4,"b":0.0,"g":0.2,"w":0.0,"width":0.3,"rate":0.01}
+        "data":{"r":0.4,"b":0.0,"g":0.2,"w":0.0,"width":0.3,"rate":0.002}
+      },
+      {
+        "id":5,
+        "active":false,
+        "type":"Glow",
+        "name":"Glow 2",
+        "data":{"r":0.4,"b":0.0,"g":0.2,"w":0.0,"width":0.3,"rate":0.001}
       },
       {
         "id":6,
@@ -33,6 +40,12 @@
         "active":false,
         "type":"Watchdog",
         "name":"Watchdog"
+      },
+      {
+        "id":15,
+        "active":false,
+        "type":"WatchdogPixel",
+        "name":"WatchdogPixel"
       }
     ]
   }

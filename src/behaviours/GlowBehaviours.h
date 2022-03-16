@@ -126,7 +126,7 @@ public:
     // If the HSV has been updated, then use that as truth, and convert
     // into the RGBW colour
     if( hsvCol.fromJson(d) ) {
-      Serial.println("Got a HSV update...");
+      //Serial.println("Got a HSV update...");
       hsvCol.toRGBW(tmpCol);
       tmpCol.toSerial();
     }
@@ -221,18 +221,37 @@ protected:
 };
 
 
-/*
-class FillHSV : public Behaviour {
-  virtual const char* getName() {return "FillHSV";};
-  void init(const uint8_t* buffer, size_t size) {
-    strip->fill(strip->gamma32(strip->ColorHSV(buffer[0]*255,buffer[1],buffer[2])));
-    strip->show();
+class WatchdogPixel : public GlowBehaviour {
+public:
+  WatchdogPixel(GlowController* s) : GlowBehaviour(s, "WatchdogPixel"), rate(0.001), pixel(0), counterColor(0,0,0,0) {
   }
+  /*
+  Watchdog(GlowStrip* s, int l=10, int factor=10, float bri = 0.2) :
+    Watchdog(s), length(l),factor(factor),brightness(bri) {
+      counterColor = FRGBW(0,0,0,bri);
+    };
+    */
+
+  void doUpdate(long updateTime) {
+    current = current + (rate*(float)updateTime);
+    if( current > 1 ) {
+      current = 1;
+      rate = -rate;
+    }
+    if( current < 0 ) {
+      current = 0;
+      rate = -rate;
+    }
+    counterColor.w = current;
+    strip->setRGBW(pixel,counterColor);
+  }
+
+protected:
+  float current;
+  float rate;
+  int pixel;
+  FRGBW counterColor;
 };
-*/
-
-
-
 
 class Glow : public GlowBehaviour {
 

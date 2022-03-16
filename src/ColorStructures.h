@@ -154,10 +154,10 @@ struct FHSV  {
     float H = (3.14159*wrap(h,360)/(float)180); // Convert to radians.
     float S = clamp(s); // clamp S and I to interval [0,1]
     float I = clamp(v); 
-    Serial.println("Converting HSV to RGBW");
-    toSerial();
-    Serial.print("H: "); Serial.print(H); Serial.print(", S: "); Serial.print(S); Serial.print(", I: "); Serial.print(I);
-    Serial.println();
+    //Serial.println("Converting HSV to RGBW");
+    //toSerial();
+    //Serial.print("H: "); Serial.print(H); Serial.print(", S: "); Serial.print(S); Serial.print(", I: "); Serial.print(I);
+    //Serial.println();
     
     if(H < 2.09439) {
         cos_h = cos(H);
@@ -187,8 +187,8 @@ struct FHSV  {
     target.g = g;
     target.b = b;
     target.w = w;
-    Serial.print("r: "); Serial.print(r); Serial.print(", g: "); Serial.print(g); Serial.print(", b: "); Serial.print(b); Serial.print(", w: "); Serial.print(w);
-    Serial.println();
+    //Serial.print("r: "); Serial.print(r); Serial.print(", g: "); Serial.print(g); Serial.print(", b: "); Serial.print(b); Serial.print(", w: "); Serial.print(w);
+    //Serial.println();
   }
    
 };
