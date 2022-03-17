@@ -125,7 +125,7 @@ void BaseController::setupBaseFeatures(
 void BaseController::setupControls(const char* input ) {
   Serial.println(F("------+ Loading Controls +-------"));
   if( getConfig(controlsSetup, input, "/cont.json") ) {
-    addFeature(new Controllers(controlsSetup.as<JsonVariant>()));
+    addFeature(new ControlManager(controlsSetup.as<JsonVariant>()));
   } else {
     Serial.println("!!! Problem loading Controls");
   }
