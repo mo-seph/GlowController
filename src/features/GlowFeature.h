@@ -10,7 +10,7 @@ class Feature {
 public:
   Feature() {};
   virtual void update();
-  void setController(BaseController *c) {
+  virtual void setController(BaseController *c) {
     controller = c;
   };
 

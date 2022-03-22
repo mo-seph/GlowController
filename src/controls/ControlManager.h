@@ -5,7 +5,8 @@
 #include "BaseController.h"
 #include <ArduinoJson.h>
 #include <Bounce2.h>
-#include "ControElement.h"
+#include "ControlElement.h"
+#include "LinkedList.h"
 
 class BaseController;
 
@@ -28,8 +29,6 @@ class BaseController;
 }
 */
 
-const int MAX_CONTROLS = 16;
-
 // Add a public addControl method to allow other features going in
 class ControlManager : public Feature
 {
@@ -37,35 +36,17 @@ public:
     ControlManager(JsonVariant setup) : Feature()
     {
         JsonArray controlSpec = setup["controls"].as<JsonArray>();
-        for (int i = 0; i < MAX_CONTROLS; i++)
-        {
-            if (i < controlSpec.size())
-            {
-                controls[i] = createControl(controlSpec[i]);
-                //controls[i]->setControllers(this);
-            }
-            else
-                controls[i] = NULL;
+        for (int i = 0; i < controlSpec.size(); i++) {
+            ControlElement* c = createControl(controlSpec[i]);
+            if( c != NULL ) controls.add( c );
         }
     };
 
     ControlElement *createControl(JsonVariant spec)
     {
-        if (spec["type"] == "toggle")
-        {
-            ControlElement * t = new ToggleButton(spec);
-            return t;
-        }
-        if (spec["type"] == "value")
-        {
-            ControlElement * t = new ValueButton(spec);
-            return t;
-        }
-        if (spec["type"] == "cknob")
-        {
-            ControlElement * t = new ContinuousKnob(spec);
-            return t;
-        }
+        if (spec["type"] == "toggle") { return new ToggleButton(spec); }
+        if (spec["type"] == "value") { return new ValueButton(spec); }
+        if (spec["type"] == "cknob") { return new CenteredContinuous(spec); }
         else
         {
             Serial.println("Unknown control setup:");
@@ -76,18 +57,21 @@ public:
 
     virtual void update()
     {
-        for (int i = 0; i < MAX_CONTROLS; i++)
-        {
-            if (controls[i]) { 
-                if( controls[i]->update(1) ) { sendUpdate(controls[i]->getCurrent() );} 
-                //if( controls[i]->update() ) ;
-            }
+        int s = controls.size();
+        for (int i = 0; i < s; i++) {
+            controls.get(i)->update(1);
         }
     }
-    void sendUpdate(JsonVariant v );
+
+    virtual void setController(BaseController* b ) {
+        Feature::setController(b);
+        for (int i = 0; i < controls.size(); i++) {
+            controls.get(i)->setController(b); 
+        }
+    }
 
 protected:
-    ControlElement *controls[MAX_CONTROLS];
+    LinkedList<ControlElement*> controls;
 };
 
 
