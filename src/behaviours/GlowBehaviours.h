@@ -79,7 +79,8 @@ protected:
 
 class Fill : public GlowBehaviour {
 public:
-  Fill(GlowController* s) : GlowBehaviour(s,"Fill") {}
+  Fill(GlowController* s) : GlowBehaviour(s,"Fill") {
+  }
   /*
   Fill(GlowStrip* s, FRGBW col) :
     Fill(s), currentColor(col), targetColor(col) { }
@@ -118,19 +119,38 @@ public:
   }
 
   void stateFromJson(JsonVariant d) {
+    Serial.println("Fill Updating from JSON...");
+    serializeJson(d,Serial); Serial.println();
     if( d.containsKey("time")) nextInterpTime = d["time"];
+    if( d.containsKey("save")) {
+      save = true;
+      strcpy(saveKey,d["save"].as<const char *>());
+      Serial.print("Color key set to: "); Serial.print(saveKey); Serial.print(" from: "); Serial.println(d["save"].as<const char*>());
+    }
     // Start from current colour
     FRGBW tmpCol = targetColor;
     // Update it from the JSON coming in
-    tmpCol.fromJson(d);
+    bool updated = tmpCol.fromJson(d);
     // If the HSV has been updated, then use that as truth, and convert
     // into the RGBW colour
     if( hsvCol.fromJson(d) ) {
       //Serial.println("Got a HSV update...");
       hsvCol.toRGBW(tmpCol);
       tmpCol.toSerial();
+      updated = true;
     }
-    setColor(tmpCol);
+    if( ! initialised ) {
+      initialised = true;
+      if( save ) {
+        loadInitialColor(tmpCol);
+      }
+    }
+    else {
+      if( updated && save ) {
+        saveInitialColor(tmpCol);
+      }
+      setColor(tmpCol);
+    }
   }
 
   void stateToJson(JsonVariant d) {
@@ -139,14 +159,20 @@ public:
     d["time"] = (nextInterpTime > 0) ? nextInterpTime : interpTime;
   }
 
+  bool loadInitialColor(FRGBW& data);
+  bool saveInitialColor(FRGBW& data);
+
 protected:
   FRGBW currentColor;
   FRGBW startColor;
   FRGBW targetColor;
-  FHSV hsvCol;
+  FHSV hsvCol = FHSV(0,0,1.0);
   float interpTime =0;
   float nextInterpTime = -1;
   long interpStart;
+  char saveKey[30];
+  bool save = false;
+  bool initialised = false;
 
   void startInterp() {
     startColor = currentColor;

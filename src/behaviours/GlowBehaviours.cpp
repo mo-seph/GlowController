@@ -3,6 +3,30 @@
 GlowBehaviour::GlowBehaviour(GlowController *c,const char *type) :
   controller(c), strip(c->getStrip()), type(type) { }
 
+bool Fill::loadInitialColor(FRGBW& data) {
+    Serial.print("Loading color for base fill from Prefs::");Serial.println(saveKey);
+    if( controller->loadColor(data,saveKey) ) {
+      Serial.println("Found color!");
+      data.toSerial();
+      fadeIn(data,1.5);
+      return true;
+    }
+    else {
+      Serial.print("No colour found in "); Serial.println(saveKey);
+    }
+  
+    return false;
+  }
+
+bool Fill::saveInitialColor(FRGBW& data) {
+    if( save ) {
+      Serial.print("Saving color for base fill to Prefs::");Serial.println(saveKey);
+      data.toSerial();
+      controller->storeColor(data,saveKey);
+      return true;
+    }
+    return false;
+  }
 
 PixelClock::PixelClock(GlowController* s ) : GlowBehaviour(s,"PixelClock") {}
 void PixelClock::doUpdate(long millis) {

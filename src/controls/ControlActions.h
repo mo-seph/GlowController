@@ -59,12 +59,13 @@ class ExternalGlowAction : public GlowJSONAction {
 public:
     ExternalGlowAction(JsonVariant config) : GlowJSONAction(config) {
         Serial.println("Setting up external control action...");
+        serializeJson(config,Serial);Serial.println();
         target = String("leds/") + config["target"].as<const char*>() + "/commands";
         Serial.print("Starting action pointing at: "); Serial.println(target);
     }
     virtual void send() {
         Serial.println("Sending document externally to: ");
-        serializeJson(doc,Serial);
+        serializeJson(doc,Serial); Serial.println();
         MQTTConnector::static_mqtt->sendJSON(target.c_str(),doc.as<JsonVariant>());
     }
 protected:

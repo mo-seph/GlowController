@@ -40,12 +40,12 @@ static const char controlsJSON[] PROGMEM = ( R"(
     {
       "type":"cknob",
       "pin":34,
-      "max":2,
-      "min":-2,
+      "max":0.05,
+      "min":-0.05,
       "deadzone":0.05,
       "minIn":0.23,
       "maxIn":0.75,
-      "update":100,
+      "update":200,
       "actions":[ 
         {
           "type":"internal",
@@ -62,12 +62,12 @@ static const char controlsJSON[] PROGMEM = ( R"(
     {
       "type":"cknob",
       "pin":39,
-      "max":2,
-      "min":-2,
+      "max":10,
+      "min":-10,
       "deadzone":0.05,
       "minIn":0.23,
       "maxIn":0.75,
-      "update":100,
+      "update":200,
       "actions":[ 
         {
           "type":"internal",

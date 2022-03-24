@@ -76,26 +76,20 @@ public:
   void deActivateBehaviour(int i);
 
 
-  void storeColor(JsonVariant d,int address=0) {
-    if(d["r"]) tmpColor.r = d["r"];
-    if(d["g"]) tmpColor.g = d["g"];
-    if(d["b"]) tmpColor.b = d["b"];
-    if(d["w"]) tmpColor.w = d["w"];
-    storeColor(tmpColor,address);
+  void storeColor(FRGBW color,const char* key) {
+    //Serial.print("Saving color to: "); Serial.println(key);
+    color.toSerial();
+    prefs.putBytes(key,&color,sizeof(FRGBW));
+    //FRGBW check(0,0,0,0);
+    //prefs.getBytes(key,&check,sizeof(FRGBW));
+    //Serial.println("Check:");
+    //check.toSerial();
   }
-  void storeColor(FRGBW color,int address=0) {
-    Serial.print("Storing color: []");
-    //strip->printColor(color);
-    //Serial.println("]");
-    EEPROM.put(address,color);
-  }
-  FRGBW loadColor(FRGBW color,int address=0) {
-    FRGBW tColor;
-    EEPROM.get(address,tColor);
-    Serial.print("Loaded color: [");
-    strip->printColor(tColor);
-    Serial.println("]");
-    return tColor;
+  bool loadColor(FRGBW& color,const char* key) {
+    //Serial.print("Loading color from: "); Serial.println(key);
+    prefs.getBytes(key,&color,sizeof(FRGBW));
+    color.toSerial();
+    return true;
   }
   void setupInitialColor(); 
   GlowStrip* getStrip() {return strip;}

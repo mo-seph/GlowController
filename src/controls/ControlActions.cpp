@@ -7,6 +7,6 @@ void ControlAction::setController(BaseController* b) {
 }
 void InternalGlowAction::send() {
     Serial.println("Sending document internally: ");
-    serializeJson(doc,Serial);
+    serializeJson(doc,Serial); Serial.println();
     controller->processInput(doc.as<JsonVariant>());
 }

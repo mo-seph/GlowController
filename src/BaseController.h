@@ -19,6 +19,7 @@
 #include <PubSubClient.h>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+#include <Preferences.h>
 
 static WiFiClient esp;
 static PubSubClient client(esp);
@@ -64,6 +65,7 @@ public:
     if(!SPIFFS.begin() ) {
       Serial.println("Couldn't start filesystem :/");
     }
+    prefs.begin("glow");
   }
 
   void setupBaseFeatures(   const char* ssid, const char* password, 
@@ -140,7 +142,7 @@ public:
     }
     return isOK;
   }
-
+  Preferences getPrefs() { return prefs; }
 
 protected:
   const char* id;
@@ -155,7 +157,7 @@ protected:
   bool hasTime = false;
   DynamicJsonDocument ping_doc;
   DynamicJsonDocument controlsSetup;
- 
+  Preferences prefs;
 
 };
 

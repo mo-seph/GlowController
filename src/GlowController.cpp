@@ -100,6 +100,7 @@ bool GlowController::processInput(JsonVariant d) {
     processed = true;
   }
   /* Special one to store bacground colour in EEPROM */
+  /*
   if( d.containsKey("update") && d["update"] == 0 ) {
       //Serial.println("Saving color");
       //serializeJson(doc["data"],Serial);
@@ -108,6 +109,7 @@ bool GlowController::processInput(JsonVariant d) {
       //strip.printColor(newCol);
       storeColor(newCol);
   }
+  */
   if( d.containsKey("activate") ) {
     activateBehaviour(d["activate"]);
     sendState();

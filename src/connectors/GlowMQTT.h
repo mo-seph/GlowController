@@ -69,7 +69,7 @@ public:
 
   void sendJSON(const char* channel, JsonVariant v) {
     if( client->connected() ) {
-      Serial.print("Sending state on ["); Serial.print(state_channel); Serial.println("]");
+      Serial.print("Sending doc on ["); Serial.print(channel); Serial.println("]");
       serializeJson(v, msg);
       client->publish(channel, msg);
     } else {

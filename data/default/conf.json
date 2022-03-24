@@ -5,6 +5,7 @@
         "id":0,
         "type":"Fill",
         "name":"Baseline",
+        "save":"base",
         "data":{"r":0.1,"b":0.0,"g":0.0,"w":0.3}
       },
       {

@@ -118,8 +118,8 @@ Provkes state update:
 - [ ] Brightness patterns to avoid wasting light when occluded?
 - [ ] Brightness curves
 - [ ] Dithering/noise?
-- [ ] Check in about saving base color to flash
-- [ ] Buttons input
+- [X] Check in about saving base color to flash
+- [X] Buttons input
 - [ ] Turn on/off in setup?
 - [ ] Save current JSON state to flash?
 - [ ] Add new behaviours via JSON?

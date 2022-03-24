@@ -14,8 +14,9 @@ static float clamp(float v, float min=0.0, float max=1.0 ) {
     return v;
 }
 
-static float wrap(float v, float max ) {
-    if( v > max ) return fmod(v, max);
+static float wrap(float v, float max, float min = 0) {
+    while(v > max ) v = v - (max - min);
+    while(v < min ) v = v + (max - min);
     return v;
 }
 

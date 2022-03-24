@@ -4,6 +4,8 @@
 #include "Arduino.h"
 #include <ArduinoJson.h>
 #include "Utils.h"
+#include "EEPROM.h"
+#include "Preferences.h"
 //#define DEG_TO_RAD(X) (M_PI*(X)/180)
 
 /**
@@ -46,11 +48,25 @@ struct FRGBW  {
     w = wht;
   }
 
-  void fromJson(JsonVariant d) {
-    if( d.containsKey("r")) r = clamp(d["r"]);
-    if( d.containsKey("g")) g = clamp(d["g"]);
-    if( d.containsKey("b")) b = clamp(d["b"]);
-    if( d.containsKey("w")) w = clamp(d["w"]);
+  bool fromJson(JsonVariant d) {
+    bool updated = false;
+    if( d.containsKey("r")) {
+      r = clamp(d["r"]);
+      updated = true;
+    }
+    if( d.containsKey("g")) {
+      g = clamp(d["g"]);
+      updated = true;
+    }
+    if( d.containsKey("b")) {
+      b = clamp(d["b"]);
+      updated = true;
+    }
+    if( d.containsKey("w")) {
+      w = clamp(d["w"]);
+      updated = true;
+    }
+    return updated;
   };
 
   void toJson(JsonVariant d) {
@@ -62,6 +78,28 @@ struct FRGBW  {
   void toSerial() {
     Serial.print("RGBW :: r: "); Serial.print(r); Serial.print(", g: "); Serial.print(g); Serial.print(", b: "); Serial.print(b); Serial.print(", w: "); Serial.print(w);
     Serial.println();
+  }
+
+  void toEEPROM(Preferences prefs, const char* key) {
+    prefs.begin("glow");
+    FRGBW intest(0.3,0.4,0.5,0.6);
+    prefs.putBytes("glow",&intest,sizeof(FRGBW));
+    Serial.print("Saved color to "); Serial.println(key);
+    intest.toSerial();
+    Serial.print("OK? > "); Serial.println(prefs.isKey(key));
+    FRGBW test;
+    prefs.getBytes("glow",&test,sizeof(FRGBW));
+    Serial.println("Loaded back: ");
+    test.toSerial();
+  }
+
+  bool fromEEPROM(Preferences prefs, const char* key) {
+    //if( ! prefs.isKey(key)) {
+      //Serial.print("Couldn't find color in: "); Serial.println(key);
+      //return false;
+    //}
+    prefs.getBytes("glow",this,sizeof(FRGBW));
+    return true;
   }
 };
 
@@ -113,15 +151,19 @@ struct FHSV  {
         updated = true;
     }
     if( d.containsKey("h+")) {
+      Serial.print("Updating HUE... "); Serial.print(h); Serial.print(" + "); Serial.print(d["h+"].as<float>());Serial.print(" -> ");
         h = wrap(h + d["h+"].as<float>(),360);
+        Serial.println(h);
         updated = true;
     }
     if( d.containsKey("s+")) {
-        s = clamp(s + d["s"].as<float>());
+      Serial.print("Updating SAT... "); Serial.print(s); Serial.print(" + "); Serial.print(d["s+"].as<float>());Serial.print(" -> ");
+        s = clamp(s + d["s+"].as<float>());
+        Serial.println(s);
         updated = true;
     } 
     if( d.containsKey("v+")) {
-        v = clamp(v + d["v"].as<float>());
+        v = clamp(v + d["v+"].as<float>());
         updated = true;
     }
     return updated;
