@@ -57,7 +57,14 @@ static const char controlsJSON[] PROGMEM = ( R"(
           "behaviour_id":0,
           "target":"study_test",
           "path":["data","s+"]
-      } ]
+        }, 
+        {
+          "type":"external",
+          "behaviour_id":0,
+          "target":"living",
+          "path":["data","s+"]
+        } 
+      ]
     },
     {
       "type":"cknob",
@@ -77,8 +84,43 @@ static const char controlsJSON[] PROGMEM = ( R"(
         {
           "type":"external",
           "behaviour_id":0,
+          "target":"living",
+          "path":["data","h+"]
+        },
+        {
+          "type":"external",
+          "behaviour_id":0,
           "target":"study_test",
           "path":["data","h+"]
+        }
+      ]
+    },
+      {
+      "type":"cknob",
+      "pin":36,
+      "max":10,
+      "min":-10,
+      "deadzone":0.05,
+      "minIn":0.23,
+      "maxIn":0.75,
+      "update":200,
+      "actions":[ 
+        {
+          "type":"internal",
+          "behaviour_id":0,
+          "path":["data","v+"]
+        },
+        {
+          "type":"external",
+          "behaviour_id":0,
+          "target":"living",
+          "path":["data","v+"]
+        },
+        {
+          "type":"external",
+          "behaviour_id":0,
+          "target":"study_test",
+          "path":["data","v+"]
         }
       ]
     }

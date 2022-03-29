@@ -114,15 +114,16 @@ Provkes state update:
 
 
 # Roadmap
-- [ ] Overall brightness control/limiting for the strip
+- [ ] Convert from FRGBW to FHSV
+- [ ] Add option to keep own value for ContinuousKnob (so that it can update multiple strips with same value)
+- [ ] Check overall brightness control/limiting for the strip
 - [ ] Brightness patterns to avoid wasting light when occluded?
 - [ ] Brightness curves
-- [ ] Dithering/noise?
+- [ ] Dithering/noise? Start with Fill?
 - [X] Check in about saving base color to flash
 - [X] Buttons input
-- [ ] Turn on/off in setup?
+- [X] Turn on/off in setup?
 - [ ] Save current JSON state to flash?
-- [ ] Add new behaviours via JSON?
 - [X] Load config from filesystem
 - [ ] New behaviours:
    - [ ] Fire

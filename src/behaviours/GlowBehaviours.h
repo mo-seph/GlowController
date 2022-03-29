@@ -97,6 +97,7 @@ public:
     //strip->printColor(currentColor);
     //Serial.println();
     strip->fillRGBW(currentColor);
+    if( dirty ) maybeSave();
   }
 
 
@@ -139,6 +140,7 @@ public:
       tmpCol.toSerial();
       updated = true;
     }
+    if( updated ) dirty = true;
     if( ! initialised ) {
       initialised = true;
       if( save ) {
@@ -146,9 +148,6 @@ public:
       }
     }
     else {
-      if( updated && save ) {
-        saveInitialColor(tmpCol);
-      }
       setColor(tmpCol);
     }
   }
@@ -159,6 +158,13 @@ public:
     d["time"] = (nextInterpTime > 0) ? nextInterpTime : interpTime;
   }
 
+  void maybeSave() {
+    if( dirty && millis() > lastSave + saveInterval ) {
+      dirty = false;
+      lastSave = millis();
+      saveInitialColor(targetColor);
+    }
+  }
   bool loadInitialColor(FRGBW& data);
   bool saveInitialColor(FRGBW& data);
 
@@ -172,6 +178,9 @@ protected:
   long interpStart;
   char saveKey[30];
   bool save = false;
+  bool dirty = false;
+  long saveInterval = 5000;
+  long lastSave = 5000;
   bool initialised = false;
 
   void startInterp() {
