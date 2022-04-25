@@ -90,7 +90,7 @@ public:
     long delta = millis() - interpStart;
     float proportion = (float)((delta)/interpTime) * 0.001;
     if( proportion <= 1.0 ) {
-      currentColor = strip->interpolateRGBW(startColor,targetColor,proportion);
+      currentColor = interpolateRGBW(startColor,targetColor,proportion);
     } else {
 
     }

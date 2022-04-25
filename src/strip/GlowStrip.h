@@ -61,19 +61,14 @@ public:
 
   void spatialInterpolation(PointARGBW from, PointARGBW to);
 
-  inline FRGBW interpolateRGBW(FRGBW start_col, FRGBW end_col, float amount) {
-    return FRGBW(
-      start_col.r + (end_col.r - start_col.r)*amount,
-      start_col.g + (end_col.g - start_col.g)*amount,
-      start_col.b + (end_col.b - start_col.b)*amount,
-      start_col.w + (end_col.w - start_col.w)*amount
-    );
-  }
 
   int length() {return numLeds;};
 
   int positionToPixels( float position ) {
     return (int)(position * numLeds );
+  }
+  float pixelsToPosition( int pixels ) {
+    return (pixels / (float)numLeds );
   }
 
   /* Main functions to rewrite for an implementation */

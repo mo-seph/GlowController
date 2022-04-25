@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "EEPROM.h"
 #include "Preferences.h"
+#include "LinkedList.h"
 //#define DEG_TO_RAD(X) (M_PI*(X)/180)
 
 /**
@@ -102,6 +103,16 @@ struct FRGBW  {
     return true;
   }
 };
+
+static inline FRGBW interpolateRGBW(FRGBW start_col, FRGBW end_col, float amount) {
+  return FRGBW(
+    start_col.r + (end_col.r - start_col.r)*amount,
+    start_col.g + (end_col.g - start_col.g)*amount,
+    start_col.b + (end_col.b - start_col.b)*amount,
+    start_col.w + (end_col.w - start_col.w)*amount
+  );
+}
+
 
 /**
 * This is a float based data container for LED strips
@@ -287,5 +298,61 @@ struct AreaARGBW {
 }
 */
 };
+
+class ColorPoint {
+public:
+  ColorPoint(float p, FRGBW c) : position(p), color(c) {}
+  float position;
+  FRGBW color;
+};
+
+class InterpolationTable {
+public:
+  InterpolationTable() {}
+  FRGBW getColor(float pos) {
+    int size = points.size();
+    if( size == 0 ) {
+      //Serial.println("No colors...");
+      return FRGBW(0,0,0,0);
+    }
+    //Serial.print("Pos:\t");Serial.print(pos);
+    for( int i = 0; i < size; i++ ) {
+      ColorPoint* c = points.get(i);
+      if(pos < c->position ) {
+        if( i == 0 ) { 
+          //Serial.println(" < under");
+          return c->color; 
+        }
+        ColorPoint* prev = points.get(i-1);
+        //Serial.print(" between ");Serial.print(prev->position);Serial.print("..");Serial.print(c->position);Serial.print(" ==> ");
+        float proportion = 
+          (pos - prev->position) /  // Distance into interval
+          (c->position - prev->position); //Size of interval
+        //Serial.println(proportion);
+        return interpolateRGBW(prev->color, c->color,proportion);
+      }
+    }
+    //Serial.println(" > over");
+    return points.get(size - 1)->color;
+  }
+  /*
+   * Make sure to add points in increasing order
+   */ 
+  void addPoint(float pos, FRGBW col) {
+    points.add(new ColorPoint(pos,col));
+  }
+
+  void print() {
+    Serial.println("<<");
+    for(int i = 0; i < points.size(); i++ ) {
+      ColorPoint* c = points.get(i);
+      Serial.print(c->position);Serial.print(" => "); c->color.toSerial();
+    }
+    Serial.println(">>");
+  }
+protected:
+  LinkedList<ColorPoint*> points;
+};
+
 
 #endif

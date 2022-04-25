@@ -37,7 +37,7 @@ public:
       return;
     } else if( relativeTime >= 0 ) {
       //This is the main countdown, fade from red to green...
-      FRGBW color = strip->interpolateRGBW(endColor, startColor, relativeTime / timeBefore);
+      FRGBW color = interpolateRGBW(endColor, startColor, relativeTime / timeBefore);
       strip->fillRGBW(color, startPixel, endPixel);
     } else {
       //The time is passed! Flash!

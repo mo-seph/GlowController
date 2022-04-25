@@ -5,6 +5,7 @@
 #include "connectors/GlowMQTT.h"
 #include "behaviours/PixelCountdown.h"
 #include "behaviours/ColorAlarm.h"
+#include "behaviours/Fire.h"
 
 
 
@@ -229,6 +230,9 @@ GlowBehaviour* GlowController::makeBehaviourFromType(const char* type) {
   } else if(strcmp(type,"Glow") == 0 ) {
     Serial.println("Making Glow");
     return new Glow(this);
+  } else if(strcmp(type,"Fire") == 0 ) {
+    Serial.println("Making Fire");
+    return new FireBehaviour(this);
   } else if(strcmp(type,"PixelCountdown") == 0 ) {
     Serial.println("Making PixelCountdown");
     return new PixelCountdown(this);

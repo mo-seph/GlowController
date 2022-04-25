@@ -111,7 +111,7 @@ public:
     //Serial.print("Level: "); Serial.print(level);
     //Serial.print(", Delta: "); Serial.println(delta);
     //strip->fillRGBW(strip->interpolateRGBW(FRGBW(0,0,0,0),color,level),startPixel,endPixel);
-    strip->fillRGBW(strip->interpolateRGBW(FRGBW(0,0,0,0),color,level),startPixel,endPixel);
+    strip->fillRGBW(interpolateRGBW(FRGBW(0,0,0,0),color,level),startPixel,endPixel);
   }
 
 };

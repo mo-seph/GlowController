@@ -77,7 +77,7 @@ public:
     for(int i = 0; i < border; i++ ) { strip->addPixel(a->frame_color);}
     for(int i = 0; i < strip_length; i++ ) {
       if( i < num_pixels ) strip->addPixel(a->count_color);
-      else if( i == num_pixels ) strip->addPixel(strip->interpolateRGBW(FRGBW(0,0,0,0),a->count_color,frac));
+      else if( i == num_pixels ) strip->addPixel(interpolateRGBW(FRGBW(0,0,0,0),a->count_color,frac));
       else strip->addPixel(FRGBW(0,0,0,0));
     }
     for(int i = 0; i < border; i++ ) { strip->addPixel(a->frame_color);}
