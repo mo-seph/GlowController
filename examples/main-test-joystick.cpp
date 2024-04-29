@@ -12,6 +12,8 @@
 
 BaseController glowControl(strname(DEVICE_ID),strname(DEVICE_NAME));
 
+
+
 /*
 static const char controlsJSON[] PROGMEM = ( R"(
 {
@@ -126,6 +128,9 @@ static const char controlsJSON[] PROGMEM = ( R"(
     }
   ]
 })");
+
+
+
 
 void setup() {
     glowControl.initialise();
