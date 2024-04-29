@@ -47,6 +47,7 @@ public:
         if (spec["type"] == "toggle") { return new ToggleButton(spec); }
         if (spec["type"] == "value") { return new ValueButton(spec); }
         if (spec["type"] == "cknob") { return new CenteredContinuous(spec); }
+        if (spec["type"] == "gamepad") { return new GamepadElement(spec); }
         else
         {
             Serial.println("Unknown control setup:");

@@ -9,6 +9,7 @@
 #include "Utils.h"
 #include "ControlHelpers.h"
 #include "LinkedList.h"
+#include "Gamepad.h"
 
 class BaseController;
 class ControlAction;
@@ -183,5 +184,40 @@ protected:
     long rate = 300;
 };
 
+/* Example JSON:
+  {
+      "type":"gamepad",
+      "deadzone":0.05,
+      "update":200,
+      "x_displaced": 
+        {
+          "type":"external",
+          "behaviour_id":0,
+          "multiplier":0.1,
+          "target":"study_shelf",
+          "path":["data","s+"]
+        } 
+    }
+*/
+
+class GamepadElement : public ControlElement {
+    GamepadWrapper gc = GamepadWrapper();
+    int x_button_index = 0;
+    int y_button_index = 0;
+    int a_button_index = 0;
+    int b_button_index = 0;
+
+public:
+    GamepadElement(JsonVariant config);
+    bool update(int i );
+
+protected:
+    ControlAction* x_displaced = NULL;
+    ControlAction* y_displaced = NULL;
+    ControlAction* up_pressed = NULL;
+    ControlAction* down_pressed = NULL;
+    ControlAction* left_pressed = NULL;
+    ControlAction* right_pressed = NULL;
+};
 
 #endif
