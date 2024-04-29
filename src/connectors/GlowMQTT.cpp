@@ -22,6 +22,7 @@ char msg[MSG_BUFFER_SIZE];
 
 long retry_time = 0;
 long connection_interval = 500;
+const int MAX_CONNECTION_INTERVAL = 10 * 60 * 1000;
 
 
 /*
@@ -36,12 +37,21 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 MQTTConnector* MQTTConnector::static_mqtt;
 
-  void MQTTConnector::setController(BaseController *c) {
-    Serial.println("Setting controller for MQTT Connector");
+void MQTTConnector::setController(BaseController *c) {
+    Connector::setController(c);
     controller = c;
+    Serial.println("Setting controller for MQTT Connector");
+    Serial.print("Setting server ["); Serial.print(mqtt_server); Serial.print("] and port ["); Serial.print(mqtt_port); Serial.println("]");
+
+    client_id = String("GlowLight-") + c->getID();
+    Serial.print("Got ID: ");
+    Serial.println(client_id);
+    
+    client->setServer(mqtt_server, mqtt_port);
+    updateConnection();
+
     //MQTTConnector::static_controller = c;
     MQTTConnector::static_mqtt = this;
-    client_id = String("GlowLight-") + c->getID();
     command_channel = String("leds/") + c->getID() + "/commands";
     Serial.print("Command channel: "); Serial.println(command_channel);
     state_channel = String("leds/") + c->getID() + "/state";
@@ -59,9 +69,12 @@ MQTTConnector* MQTTConnector::static_mqtt;
     to try again later
     */
     if(!client->connected() ) {
-      if( millis() > last_update + connection_interval ) {
+      if( (millis() > last_update + connection_interval ) && WiFi.isConnected() ) {
         last_update = millis();
-        Serial.print("Attempting MQTT connection...");
+        connection_interval *= 2;
+        if( connection_interval > MAX_CONNECTION_INTERVAL ) connection_interval = MAX_CONNECTION_INTERVAL;
+        Serial.print("Attempting MQTT connection as");
+        Serial.println(client_id.c_str());
         // Attempt to connect
         if (client->connect(client_id.c_str())) {
           Serial.print("MQTT connected publishing on: ");
@@ -79,8 +92,10 @@ MQTTConnector* MQTTConnector::static_mqtt;
         } else {
           Serial.print("failed, rc=");
           Serial.print(client->state());
-          Serial.println(" try again in 2 seconds");
-        }
+          Serial.print(" try again in ");
+          Serial.print(connection_interval / 1000);
+          Serial.println(" seconds");
+        } 
       } else {
         //retry_time = millis() + connection_interval;
       }

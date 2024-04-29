@@ -34,9 +34,6 @@ public:
       {
       Serial.println("Creating MQTT Connector");
       client->setBufferSize(1400);
-      Serial.print("Setting server ["); Serial.print(mqtt_server); Serial.print("] and port ["); Serial.print(mqtt_port); Serial.println("]");
-      client->setServer(mqtt_server, mqtt_port);
-      updateConnection();
 
   }
   //static GlowController* static_controller;
