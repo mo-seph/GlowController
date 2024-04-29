@@ -8,13 +8,17 @@
 class ControlAction
 {
 public:
-    ControlAction(JsonVariant config) {}
+    ControlAction(JsonVariant config);
     virtual void trigger(float in) {}
+    virtual void triggerMult(float in);
     virtual void trigger(bool in) {}
     virtual void trigger(int in) {}
+    virtual void toggle();
     void setController(BaseController* b);
 protected:
     BaseController* controller;
+    bool toggled = false;
+    float multiplier = 1;
 };
 
 

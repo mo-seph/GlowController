@@ -1,6 +1,13 @@
 #include "ControlActions.h"
 
 
+void ControlAction::toggle() { toggled = !toggled; trigger(toggled);}
+void ControlAction::triggerMult(float in) { trigger(in * multiplier);}
+ControlAction::ControlAction(JsonVariant config) {
+    if( config.containsKey("multiplier")) {
+        multiplier = config["multiplier"];
+    } else multiplier = 1.0;
+}
 
 void ControlAction::setController(BaseController* b) {
     controller = b;
