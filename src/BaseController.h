@@ -15,7 +15,8 @@
 //#include <TimeLib.h>
 #include <LinkedList.h>
 #include <TimeStruct.h>
-#include <SPIFFS.h>
+//#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <PubSubClient.h>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
@@ -59,12 +60,16 @@ public:
   /* Initialisation */
   virtual void initialise() {
     Serial.begin(115200);
-    Serial.println("Controller Initialising");
+    Serial.print("Controller Initialising with ID '");
+    Serial.print(id);
+    Serial.println("'");
     timeKeeping()->logState = 0;
     timeKeeping()->logTime = 0;
-    if(!SPIFFS.begin() ) {
+    if(!LittleFS.begin(true) ) {
       Serial.println("Couldn't start filesystem :/");
     }
+ 
+
     prefs.begin("glow");
   }
 
@@ -128,10 +133,10 @@ public:
       else { isOK = true; }
     }
     else {
-      if( ! SPIFFS.exists(filename)) {
+      if( ! LittleFS.exists(filename)) {
         Serial.print(F("File missing: ")); Serial.println(filename);
       } else {
-        File f = SPIFFS.open(filename, "r");
+        File f = LittleFS.open(filename, "r");
         Serial.print("Configuring from file: "); Serial.println(filename);
         DeserializationError error = deserializeJson(target, f);
         if( error ) {
