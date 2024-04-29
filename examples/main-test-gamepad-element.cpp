@@ -28,8 +28,30 @@ static const char controlsJSON[] = ( R"(
           "behaviour_id":0,
           "multiplier":0.1,
           "target":"study_shelf",
-          "path":["data","s+"]
-        } 
+          "path":["data","v+"]
+        },
+      "y_displaced": 
+      [ {
+          "type":"external",
+          "behaviour_id":0,
+          "multiplier":5.1,
+          "target":"study_shelf",
+          "path":["data","h+"]
+        } ],
+      "up_pressed": 
+      [ {
+          "type":"external",
+          "behaviour_id":1,
+          "target":"study_shelf",
+          "path":["active"]
+        } ],
+      "down_pressed": 
+      [ {
+          "type":"external",
+          "behaviour_id":5,
+          "target":"study_shelf",
+          "path":["data","time"]
+        } ]
     }
   ]
 })"); 
@@ -53,8 +75,6 @@ static const char noControlsJSON[] = ( R"(
 
 void setup() {
     while(!Serial) {delay(100);}
-    Serial.println("Hello! Starting up... 2s delay");
-    delay(2000);
     glowControl = new BaseController(strname(DEVICE_ID),strname(DEVICE_NAME));
     Serial.println("Initialising");
     glowControl->initialise();

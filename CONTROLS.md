@@ -22,7 +22,9 @@ Fields:
 - `path`: the command to call on the given behaviour
 - `target`: for an external action, the name of the device to send commands to
 
-
+## Example Paths
+- `["data","h+"]` - increases the hue by the given amount. Can also do `s+` for sat and `v+` for brightness. Looks like `h` has a big range, while `s` and `v` are `0..1`
+- `["active"]` - boolean, on or off for the behaviour
 # Elements
 
 Elements take some things that define their physical connections (e.g. pins for knobs)

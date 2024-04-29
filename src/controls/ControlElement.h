@@ -13,21 +13,12 @@
 
 class BaseController;
 class ControlAction;
+class ControlActionList;
 
 class ControlElement
 {
 public:
-    ControlElement(JsonVariant config) : hasChanged(false)
-    {
-        Serial.println("Creating control");
-        serializeJson(config,Serial);
-        if(config.containsKey("actions")) {
-            for( int i = 0; i < config["actions"].as<JsonArray>().size(); i++ ) {
-                ControlAction* a = createAction(config["actions"][i]);
-                if( a != NULL ) actions.add(a);
-            }
-        }
-    }
+    ControlElement(JsonVariant config);
     virtual bool update(int i)
     {
         read();
@@ -41,9 +32,9 @@ public:
         }
     }
     /* Should all be generic I think! */
-    virtual void trigger(float in);
-    virtual void trigger(bool in);
-    virtual void trigger(int in);
+    //virtual void trigger(float in);
+    //virtual void trigger(bool in);
+    //virtual void trigger(int in);
 
     virtual void action() { Serial.println("Base class action = shouldn't happen..."); }
     virtual void read() { Serial.println("Base class read - shouldn't happen..."); }
@@ -53,7 +44,7 @@ public:
 protected:
     BaseController* controller;
     bool hasChanged;
-    LinkedList<ControlAction*> actions;
+    ControlActionList* actions;
 };
 
 
@@ -75,12 +66,8 @@ public:
             value = !value;
         }
     }
+    virtual void action();
 
-    virtual void action() {
-        Serial.print("Setting toggle: ");
-        Serial.println(value);
-        trigger(value);
-    }
 
 protected:
     int pin;
@@ -105,11 +92,7 @@ public:
         }
     }
 
-    virtual void action() {
-        Serial.print("Setting toggle: ");
-        Serial.println(value);
-        trigger(value);
-    }
+    virtual void action();
 
 protected:
     int pin;
@@ -170,11 +153,7 @@ public:
         }
     }
 
-    virtual void action() {
-        Serial.print("Setting continous: ");
-        Serial.println(range.getValue() );
-        trigger(range.getValue());
-    }
+    virtual void action();
 
 protected:
     int pin;
@@ -212,12 +191,14 @@ public:
     bool update(int i );
 
 protected:
-    ControlAction* x_displaced = NULL;
-    ControlAction* y_displaced = NULL;
-    ControlAction* up_pressed = NULL;
-    ControlAction* down_pressed = NULL;
-    ControlAction* left_pressed = NULL;
-    ControlAction* right_pressed = NULL;
+    ControlActionList* x_displaced;
+    ControlActionList* y_displaced;
+    ControlActionList* up_pressed;
+    ControlActionList* down_pressed;
+    ControlActionList* left_pressed;
+    ControlActionList* right_pressed;
+    long JOYSTICK_TIME = 200;
+    long last_update = 0; 
 };
 
 #endif

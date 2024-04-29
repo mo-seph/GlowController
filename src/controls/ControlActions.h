@@ -2,8 +2,11 @@
 #define CONTROL_ACTIONS_H
 
 #include <ArduinoJson.h>
-#include "BaseController.h"
+//#include "BaseController.h"
 #include "connectors/GlowMQTT.h"
+#include "LinkedList.h"
+
+class BaseController;
 
 class ControlAction
 {
@@ -74,6 +77,30 @@ public:
     }
 protected:
     String target;
+};
+
+class ControlActionList {
+public:
+    ControlActionList(JsonVariant v, char* key, bool warn=false);
+    void addActions(JsonVariant v, char* key, bool warn=false);
+
+    ControlAction* createAction(JsonVariant v );
+    void addAction(ControlAction* a) {
+        if( a != NULL ) {
+            actions.add(a);
+            if( controller != NULL ) { a->setController(controller); }
+        }
+    }
+    void setController(BaseController* b );
+    void trigger(float in) { for( int i=0; i < actions.size(); i++ ) actions.get(i)->trigger(in); }
+    void triggerMult(float in) { for( int i=0; i < actions.size(); i++ ) actions.get(i)->triggerMult(in); }
+    void trigger(bool in) { for( int i=0; i < actions.size(); i++ ) actions.get(i)->trigger(in); }
+    void trigger(int in)  { for( int i=0; i < actions.size(); i++ ) actions.get(i)->trigger(in); }
+    void toggle() { for( int i=0; i < actions.size(); i++ ) actions.get(i)->toggle(); }
+
+protected:
+    LinkedList<ControlAction*> actions;
+    BaseController* controller = NULL;
 };
 
 #endif
