@@ -5,12 +5,14 @@
 //#include "Arduino.h"
 #include "ControlDefaults.h"
 #include "GlowController.h"
+#include "features/LEDStatusFeature.h"
 
 //#define STATE_LOGGING 1
 //#define TIME_LOGGING 1
 
 
 BaseController* glowControl;
+
 
 
 
@@ -74,10 +76,11 @@ static const char noControlsJSON[] = ( R"(
 
 
 void setup() {
-    while(!Serial) {delay(100);}
+    //while(!Serial) {delay(100);}
     glowControl = new BaseController(strname(DEVICE_ID),strname(DEVICE_NAME));
     Serial.println("Initialising");
     glowControl->initialise();
+    glowControl->addFeature(new LEDStatusFeature());
     Serial.println("Initialised...");
     glowControl->setupBaseFeatures(strname(WIFI_SSID), strname(WIFI_PASSWORD), strname(MQTT_SERVER), MQTT_PORT, GMT_OFFSET, DAYLIGHT_OFFSET, strname(NTP_SERVER));
     Serial.println("Setting up controls...");

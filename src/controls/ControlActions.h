@@ -73,7 +73,7 @@ public:
     virtual void send() {
         Serial.println("Sending document externally to: ");
         serializeJson(doc,Serial); Serial.println();
-        MQTTConnector::static_mqtt->sendJSON(target.c_str(),doc.as<JsonVariant>());
+        GLOBAL_MQTT_CONNECTOR->sendJSON(target.c_str(),doc.as<JsonVariant>());
     }
 protected:
     String target;

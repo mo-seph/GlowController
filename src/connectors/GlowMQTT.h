@@ -24,6 +24,8 @@
 void callback(char* topic, byte* payload, unsigned int length);
 
 
+class MQTTConnector;
+extern MQTTConnector* GLOBAL_MQTT_CONNECTOR;
 
 
 class MQTTConnector : public Connector {
@@ -37,7 +39,7 @@ public:
 
   }
   //static GlowController* static_controller;
-  static MQTTConnector* static_mqtt;
+  //static MQTTConnector* static_mqtt;
 
   /* Should call super; lazy... */
   virtual void setController(BaseController *c); 
@@ -59,6 +61,7 @@ public:
   }
 
   void gotInput(char* topic, byte* payload, unsigned int length); 
+  bool isConnected() { return client->connected(); }
 
   virtual void outputState(JsonVariant v) {
     sendJSON(state_channel.c_str(),v);

@@ -10,6 +10,7 @@
 //GlowController glowControl;
 
 //GlowController* MQTT_GLOW_CONTROL = NULL;
+MQTTConnector* GLOBAL_MQTT_CONNECTOR = NULL;
 
 
 /* Set up WiFi */
@@ -31,11 +32,11 @@ const int MAX_CONNECTION_INTERVAL = 10 * 60 * 1000;
  * callback references that
  */
 void callback(char* topic, byte* payload, unsigned int length) {
-  MQTTConnector::static_mqtt->gotInput(topic, payload,length);
+  GLOBAL_MQTT_CONNECTOR->gotInput(topic, payload,length);
 
 }
 
-MQTTConnector* MQTTConnector::static_mqtt;
+//MQTTConnector* MQTTConnector::static_mqtt;
 
 void MQTTConnector::setController(BaseController *c) {
     Connector::setController(c);
@@ -51,7 +52,8 @@ void MQTTConnector::setController(BaseController *c) {
     updateConnection();
 
     //MQTTConnector::static_controller = c;
-    MQTTConnector::static_mqtt = this;
+    //MQTTConnector::static_mqtt = this;
+    GLOBAL_MQTT_CONNECTOR = this;
     command_channel = String("leds/") + c->getID() + "/commands";
     Serial.print("Command channel: "); Serial.println(command_channel);
     state_channel = String("leds/") + c->getID() + "/state";
