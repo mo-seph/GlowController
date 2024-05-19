@@ -61,6 +61,7 @@ bool BaseController::processInput(JsonVariant d) {
   bool processed = false;
   Serial.println("Controller processing document:");
   serializeJson(d,Serial);
+  Serial.println();
   if( d.containsKey("setTime")) {
     JsonVariant t = d["setTime"];
     int y = t["year"] | -1;
@@ -73,6 +74,14 @@ bool BaseController::processInput(JsonVariant d) {
     setDate(dy,mn,y);
     processed = true;
   }
+  if( d.containsKey("saveState")) {
+    saveState();
+    processed = true;
+  }
+  if( d.containsKey("loadState")) {
+    loadState();
+    processed = true;
+  }
   return processed;
 }
 
@@ -83,6 +92,36 @@ void BaseController::sendState() {
   int l = connectors.size();
   for( int i = 0; i < l; i++ ) {
     connectors.get(i)->outputState(opv);
+  }
+}
+
+void BaseController::saveState(const char* filename) {
+  Serial.print(F("Controller saving state to ")); Serial.println(filename);
+  DynamicJsonDocument output = createOutputState();
+  Serial.println("Output: ");
+  serializeJson(output, Serial);
+  Serial.println("Opening file");
+  File file = LittleFS.open(filename, FILE_WRITE);
+  Serial.println("Writing to file");
+  serializeJson(output, file);
+  Serial.print("Written. Closing...");
+  file.close();
+  Serial.println("Done!");
+}
+
+void BaseController::loadState(const char* filename) {
+  if(!LittleFS.exists(filename)) {
+    Serial.print("File does not exist to load state from: "); Serial.println(filename);
+  } else {
+    DynamicJsonDocument stateInput(4096);
+    bool ok = getConfig(stateInput, NULL, filename);
+    if( ok ) {
+      Serial.println("Read saved state!");
+      serializeJson(stateInput, Serial);
+      Serial.println();
+      processFullStateUpdate(stateInput);
+      sendState();
+    }
   }
 }
 

@@ -85,7 +85,7 @@ void GlowController::runBehaviours() {
 
 bool GlowController::processInput(JsonVariant d) {
 
-  bool processed = false;
+  bool processed = BaseController::processInput(d);
   if( d.containsKey("update") ) {
     Serial.print("Got update for behaviour "); Serial.println((int)d["update"]);
     //serializeJson(d,Serial);
@@ -163,6 +163,23 @@ DynamicJsonDocument GlowController::createOutputState() {
   return output;
 }
 
+void GlowController::processFullStateUpdate(JsonVariant d) {
+  if(d.containsKey("state")) {
+    for( JsonVariant v : d["state"].as<JsonArray>()) {
+      if( ! v.isNull() ) {
+        int id = v["id"];
+        bool active = v["active"];
+        JsonVariant data = v["data"];
+        Serial.print("Updating behaviour "); Serial.print(id); Serial.print(" to be active: "); Serial.print(active); Serial.println(" with data: ");
+        serializeJson(data,Serial); Serial.println();
+        updateBehaviour(id,data);
+        //if( v["active"]) activateBehaviour(id);
+        //else deActivateBehaviour(id);
+      }
+    }
+  }
+
+}
 
 
 void GlowController::updateBehaviour(int id, JsonVariant d) {

@@ -48,9 +48,16 @@ public:
 
 
 
+
   /* And to send it out... */
   void sendState();
   virtual DynamicJsonDocument createOutputState();
+  
+  /* Functions to read and save current state*/
+  void saveState(const char* filename="/state.json");
+  void loadState(const char* filename="/state.json");
+
+  virtual void processFullStateUpdate(JsonVariant d) {};
 
 
   /* Utility functions */

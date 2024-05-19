@@ -67,6 +67,8 @@ public:
   GlowBehaviour* getBehaviour(int id) {return behaviours[id];};
 
 
+  /* Takes a whole state as saved, and applies it to all behaviours*/
+  virtual void processFullStateUpdate(JsonVariant d);
   void updateBehaviour(int id, JsonVariant d);
 
   void setBehaviour(int i, GlowBehaviour* b);
