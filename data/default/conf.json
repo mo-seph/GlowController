@@ -11,9 +11,9 @@
       {
         "id":4,
         "active":false,
-        "type":"Glow",
-        "name":"Glow 1",
-        "data":{"r":0.4,"b":0.0,"g":0.2,"w":0.0,"width":0.3,"rate":0.002}
+        "type":"PixelClock",
+        "name":"Clock",
+        "data":{"start":3,"scale":1}
       },
       {
         "id":5,
