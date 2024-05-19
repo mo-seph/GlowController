@@ -13,11 +13,11 @@ struct Alarm {
   long start_time;
   long end_time;
   float start_point;
-  int length;
+  float length;
   FRGBW count_color;
   FRGBW frame_color;
   bool running;
-  Alarm(float start,int length,FRGBW col,FRGBW frame) {
+  Alarm(float start,float length,FRGBW col,FRGBW frame) {
     start_time = -1;
     end_time = -1;
     start_point = start;
@@ -32,10 +32,10 @@ class PixelCountdown : public GlowBehaviour {
 public:
   PixelCountdown(GlowController* s) :
     GlowBehaviour(s,"PixelCountdown"),
-    alarm(0.05,20,FRGBW(1,0,0,0),FRGBW(0,1,1,0)),
+    alarm(0.05,0.5,FRGBW(1,0,0,0),FRGBW(0,1,1,0)),
     breath(s->getStrip(), FRGBW(0,1,1,0), 3.5) {
     setStart(0.03);
-    setLength(30);
+    setLength(0.5);
   }
   /*
   Fill(GlowStrip* s, FRGBW col) :
@@ -57,25 +57,28 @@ public:
       breath.setCycles(5);
     }
     int border = 1;
-    int strip_length = a->length - 2*border;
     long total_time = a->end_time - a->start_time;
     long elapsed_time = current_time - a->start_time;
-    float proportion = 1 - (float)(elapsed_time)/(float)total_time;
-    float size = proportion * strip_length;
+    float time_proportion = 1 - (float)(elapsed_time)/(float)total_time;
+
+    int countdown_length_pixels = strip->positionToPixels(a->length) - 2*border;
+    float size = time_proportion * countdown_length_pixels;
     int num_pixels = floor(size);
     float frac = size - (int)num_pixels;
     /*
     Serial.print("Start at: "); Serial.print(a->start_time);
     Serial.print(", Finish at: "); Serial.print(a->end_time);
     Serial.print(", current: "); Serial.print(current_time);
-    Serial.print(", proportion: "); Serial.print(proportion);
+    Serial.print(", length: "); Serial.print(a->length);
+    Serial.print(", countdown_pixels: "); Serial.print(countdown_length_pixels);
+    Serial.print(", proportion: "); Serial.print(time_proportion);
     Serial.print(", num pixels: "); Serial.print(num_pixels);
     Serial.println();
     */
     int start_pixel = strip->positionToPixels(a->start_point);
     strip->startPixels(start_pixel,1);
     for(int i = 0; i < border; i++ ) { strip->addPixel(a->frame_color);}
-    for(int i = 0; i < strip_length; i++ ) {
+    for(int i = 0; i < countdown_length_pixels; i++ ) {
       if( i < num_pixels ) strip->addPixel(a->count_color);
       else if( i == num_pixels ) strip->addPixel(interpolateRGBW(FRGBW(0,0,0,0),a->count_color,frac));
       else strip->addPixel(FRGBW(0,0,0,0));
@@ -99,13 +102,15 @@ public:
   void setStart(float start) {
     alarm.start_point = start;
     int startPixel = strip->positionToPixels(alarm.start_point);
-    breath.setRange(startPixel, startPixel + alarm.length);
+    int endPixel = strip->positionToPixels(alarm.length) + startPixel;
+    breath.setRange(startPixel, endPixel);
   }
 
-  void setLength(int length) {
+  void setLength(float length) {
     alarm.length = length;
     int startPixel = strip->positionToPixels(alarm.start_point);
-    breath.setRange(startPixel, startPixel + length);
+    int endPixel = strip->positionToPixels(length) + startPixel;
+    breath.setRange(startPixel, endPixel);
   }
 
   void stateToJson(JsonVariant d) {
