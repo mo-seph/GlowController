@@ -39,7 +39,7 @@ void GlowStrip::addRGBW(int num, FRGBW val) {
   current[num].w += min(1.0f,val.w);
 }
 
-void GlowStrip::drawBar(int start, int end, FRGBW color, float proportion, int margin_size, FRGBW margin_color, FRGBW background ) {
+void GlowStrip::drawBar(int start, int end, FRGBW color, float proportion, FRGBW background, int margin_size, FRGBW margin_color  ) {
   int bar_length = end - start - 2*margin_size;
 
   int num_pixels = floor((float)bar_length * proportion);

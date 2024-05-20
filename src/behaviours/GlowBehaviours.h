@@ -320,12 +320,15 @@ public:
 
 protected:
   int start = 10;
-  int scale = 1;
-  FRGBW backgroundCol=FRGBW(0,0,0,0);
-  FRGBW delimiterCol=FRGBW(0,0,1,0);
-  FRGBW hoursCol=FRGBW(1,0,0,0);
-  FRGBW minutesCol=FRGBW(0,1,0,0);
-  FRGBW secondsCol=FRGBW(0,1,0,0);
+  int hours_length=12;
+  int mins_length=6;
+  int secs_length=4;
+  FRGBW backgroundCol=FRGBW(0.0,0.0,0.0,0.0);
+  //FRGBW delimiterCol=FRGBW(0,0,0.6,0.8);
+  FRGBW delimiterCol=FRGBW(1,0,0.0,0.0);
+  FRGBW hoursCol=FRGBW(0.6,0,0,0.7);
+  FRGBW minutesCol=FRGBW(0.5,0.5,0,0.7);
+  FRGBW secondsCol=FRGBW(0.0,0.5,0.5,0.8);
 
 };
 

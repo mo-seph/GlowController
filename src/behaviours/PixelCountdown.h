@@ -67,9 +67,10 @@ public:
       strip->positionToPixels(a->start_point+a->length), 
       a->count_color,
       time_proportion,
+      FRGBW(0.5,0.1,0.1,0.2),
       border,
-      FRGBW(0,0,0.4,0.8),
-      FRGBW(0.5,0.1,0.1,0.2));
+      FRGBW(0,0,0.1,0.4)
+      );
 
   }
 
