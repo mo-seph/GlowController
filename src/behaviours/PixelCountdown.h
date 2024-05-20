@@ -36,6 +36,7 @@ public:
     breath(s->getStrip(), FRGBW(0,1,1,0), 3.5) {
     setStart(0.03);
     setLength(0.5);
+    alarm.running = false;
   }
   /*
   Fill(GlowStrip* s, FRGBW col) :
@@ -61,29 +62,15 @@ public:
     long elapsed_time = current_time - a->start_time;
     float time_proportion = 1 - (float)(elapsed_time)/(float)total_time;
 
-    int countdown_length_pixels = strip->positionToPixels(a->length) - 2*border;
-    float size = time_proportion * countdown_length_pixels;
-    int num_pixels = floor(size);
-    float frac = size - (int)num_pixels;
-    /*
-    Serial.print("Start at: "); Serial.print(a->start_time);
-    Serial.print(", Finish at: "); Serial.print(a->end_time);
-    Serial.print(", current: "); Serial.print(current_time);
-    Serial.print(", length: "); Serial.print(a->length);
-    Serial.print(", countdown_pixels: "); Serial.print(countdown_length_pixels);
-    Serial.print(", proportion: "); Serial.print(time_proportion);
-    Serial.print(", num pixels: "); Serial.print(num_pixels);
-    Serial.println();
-    */
-    int start_pixel = strip->positionToPixels(a->start_point);
-    strip->startPixels(start_pixel,1);
-    for(int i = 0; i < border; i++ ) { strip->addPixel(a->frame_color);}
-    for(int i = 0; i < countdown_length_pixels; i++ ) {
-      if( i < num_pixels ) strip->addPixel(a->count_color);
-      else if( i == num_pixels ) strip->addPixel(interpolateRGBW(FRGBW(0,0,0,0),a->count_color,frac));
-      else strip->addPixel(FRGBW(0,0,0,0));
-    }
-    for(int i = 0; i < border; i++ ) { strip->addPixel(a->frame_color);}
+    strip->drawBar(
+      strip->positionToPixels(a->start_point),
+      strip->positionToPixels(a->start_point+a->length), 
+      a->count_color,
+      time_proportion,
+      border,
+      FRGBW(0,0,0.4,0.8),
+      FRGBW(0.5,0.1,0.1,0.2));
+
   }
 
 /*
@@ -115,7 +102,7 @@ public:
   }
 
   void stopCountdown() {
-      alarm.running = true;
+      alarm.running = false;
   }
 
   void setStart(float start) {

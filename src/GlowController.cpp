@@ -173,8 +173,8 @@ void GlowController::processFullStateUpdate(JsonVariant d) {
         Serial.print("Updating behaviour "); Serial.print(id); Serial.print(" to be active: "); Serial.print(active); Serial.println(" with data: ");
         serializeJson(data,Serial); Serial.println();
         updateBehaviour(id,data);
-        //if( v["active"]) activateBehaviour(id);
-        //else deActivateBehaviour(id);
+        if( v["active"]) activateBehaviour(id);
+        else deActivateBehaviour(id);
       }
     }
   }

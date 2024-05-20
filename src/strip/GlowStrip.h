@@ -61,6 +61,8 @@ public:
 
   void spatialInterpolation(PointARGBW from, PointARGBW to);
 
+  void drawBar(int start, int end, FRGBW color, float proportion, int margin_size=0, FRGBW margin_color=FRGBW(0,0,1,0), FRGBW background = FRGBW(0,0,0,0) );
+
 
   int length() {return numLeds;};
 
