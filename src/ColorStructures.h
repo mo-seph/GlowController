@@ -14,9 +14,6 @@
 * Absolute waste of memory, but makes some things easier
 */
 
-
-
-
 struct FRGBW  {
   union {
     struct {
@@ -192,16 +189,19 @@ struct FHSV  {
   }
 
   // https://www.neltnerlabs.com/saikoled/how-to-convert-from-hsi-to-rgb-white
-  void toRGBW(FRGBW& target) {
+  void toRGBW(FRGBW& target);
+   
+};
+
+
+
+// From https://www.neltnerlabs.com/saikoled/how-to-convert-from-hsi-to-rgb-white
+static inline void HSVtoRGBW(const FHSV& source, FRGBW& target) {
     float r, g, b, w;
     float cos_h, cos_1047_h;
-    float H = (3.14159*wrap(h,360)/(float)180); // Convert to radians.
-    float S = clamp(s); // clamp S and I to interval [0,1]
-    float I = clamp(v); 
-    //Serial.println("Converting HSV to RGBW");
-    //toSerial();
-    //Serial.print("H: "); Serial.print(H); Serial.print(", S: "); Serial.print(S); Serial.print(", I: "); Serial.print(I);
-    //Serial.println();
+    float H = (3.14159*wrap(source.h,360)/(float)180); // Convert to radians.
+    float S = clamp(source.s); // clamp S and I to interval [0,1]
+    float I = clamp(source.v); 
     
     if(H < 2.09439) {
         cos_h = cos(H);
@@ -231,15 +231,30 @@ struct FHSV  {
     target.g = g;
     target.b = b;
     target.w = w;
-    //Serial.print("r: "); Serial.print(r); Serial.print(", g: "); Serial.print(g); Serial.print(", b: "); Serial.print(b); Serial.print(", w: "); Serial.print(w);
-    //Serial.println();
-  }
-   
-};
+}
 
+// See misc/ColourSpaces.ipynb for figuring this out in a python notebook
+static inline void RGBWtoHSV(FRGBW& source, FHSV& target) {
+  float h, s, v;
+  // hue: based on RGB, not worried about W
+  // sat: based on W relative to R+G+B
+  // val: based on W + R + G + B
 
+  v = (source.r + source.g + source.b + source.w);
+  s = 1 - (source.w / v);
 
+  float mn = min(min(source.r, source.g), source.b);
+  float mx = max(max(source.r, source.g), source.b);
+  float rn = mx - mn;
+  if( mn == mx ) h = 0;
+  else if (mx == source.r) h = (source.g-source.b)/rn;
+  else if (mx == source.g) h = 2+(source.b-source.r)/rn;
+  else if (mx == source.b) h = 4+(source.r-source.g)/rn;
 
+  target.h = clamp(h*60,0,360);
+  target.s = clamp(s);
+  target.v = clamp(v);
+}
 
 
 

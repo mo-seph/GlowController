@@ -33,8 +33,8 @@ void PixelClock::doUpdate(long millis) {
   strip->startPixels(start);
   strip->addPixel(delimiterCol);
   CurrentTime *t = controller->getTime();
-  float h = t->hour/24.0;
-  float m = t->minute /60.0;
+  float h = t->hour/24.0 + t->minute/(24.0*60);
+  float m = t->minute /60.0 + t->second/(60.0*60.0);
   float s = t->second / 60.0;
 
   int hours_start = start + 1;
@@ -49,25 +49,13 @@ void PixelClock::doUpdate(long millis) {
     strip->addPixel(delimiterCol);
   }
 
-
-  /*
-  for( int i = 0; i < 24; i++ ) {
-    strip->addPixel(h > i ? hoursCol : backgroundCol );
-  }
-  strip->addPixel(delimiterCol);
-  for( int i = 0; i < 12; i++ ) {
-    strip->addPixel(m > i ? minutesCol : backgroundCol );
-  }
-  strip->addPixel(delimiterCol);
-  for( int i = 0; i < 12; i++ ) {
-    strip->addPixel(s > i ? secondsCol : backgroundCol );
-  }
-  strip->addPixel(delimiterCol);
-  */
 };
 
 void PixelClock::stateToJson(JsonVariant d) {
   d["start"] = start;
+  d["hoursSize"] = hours_length;
+  d["minsSize"] = mins_length;
+  d["secsSize"] = secs_length;
   //d["scale"] = scale;
 }
 
@@ -75,5 +63,8 @@ void PixelClock::stateFromJson(JsonVariant d) {
   Serial.println("Updating pixelclock");
   serializeJson(d,Serial);
   if( d.containsKey("start")) start = d["start"];
+  if( d.containsKey("hoursSize")) hours_length = d["hoursSize"];
+  if( d.containsKey("minsSize")) mins_length = d["minsSize"];
+  if( d.containsKey("secsSize")) secs_length = d["secsSize"];
   //if( d.containsKey("scale")) scale = d["scale"];
 }

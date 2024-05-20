@@ -131,10 +131,15 @@ public:
     // Start from current colour
     FRGBW tmpCol = targetColor;
     // Update it from the JSON coming in
-    bool updated = tmpCol.fromJson(d);
+    bool updated = false;
+    bool hasRGB = tmpCol.fromJson(d);
+    if( hasRGB ) {
+      updated = true;
+      RGBWtoHSV(tmpCol,hsvCol);
+    }
     // If the HSV has been updated, then use that as truth, and convert
     // into the RGBW colour
-    if( hsvCol.fromJson(d) ) {
+    else if( hsvCol.fromJson(d) ) {
       //Serial.println("Got a HSV update...");
       hsvCol.toRGBW(tmpCol);
       tmpCol.toSerial();
