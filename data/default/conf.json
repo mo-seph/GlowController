@@ -27,7 +27,7 @@
         "active":false,
         "type":"PixelCountdown",
         "name":"CountdownTimer",
-        "data":{"start":0.01,"length":10,"time":10}
+        "data":{"start":0.01,"length":0.8,"time":27}
       },
       {
         "id":8,

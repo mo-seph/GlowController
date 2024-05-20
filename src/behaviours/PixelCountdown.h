@@ -86,17 +86,36 @@ public:
     for(int i = 0; i < border; i++ ) { strip->addPixel(a->frame_color);}
   }
 
+/*
+{"update":6, "data":{"time":23}}
+{"update":6, "data":{"running":true}}
+*/
 
   void stateFromJson(JsonVariant d) {
-    if( d.containsKey("time")) {
-      alarm.start_time = millis();
-      alarm.end_time = millis() + (int)(d["time"].as<float>() * 1000 );
-      alarm.running = true;
-      Serial.print("Setting end time as "); Serial.println(alarm.end_time);
-    }
-    if( d.containsKey("start")) setStart(d["start"]);
+    if( d.containsKey("time")) setCountdownTime((int)d["time"].as<float>());
+    if( d.containsKey("position")) setStart(d["position"]);
     if( d.containsKey("length")) setLength(d["length"]);
-    if( d.containsKey("running")) alarm.running = d["running"];
+    if( d.containsKey("running")) {
+      Serial.print("Got key for running: "); serializeJson(d["running"],Serial); Serial.println();
+      if( d["running"]) startCountdown();
+      else stopCountdown();
+    }
+  }
+
+  void setCountdownTime(int seconds) {
+    countdownTime = seconds;
+  }
+
+  void startCountdown() {
+    active = true;
+    alarm.start_time = millis();
+    alarm.end_time = millis() + countdownTime * 1000;
+    Serial.print("Starting countdown. Setting end time as "); Serial.println(alarm.end_time);
+    alarm.running = true;
+  }
+
+  void stopCountdown() {
+      alarm.running = true;
   }
 
   void setStart(float start) {
@@ -116,14 +135,16 @@ public:
   void stateToJson(JsonVariant d) {
     //targetColor.toJson(d);
     d["running"] = alarm.running;
-    d["start"] = alarm.start_point;
+    d["position"] = alarm.start_point;
     d["length"] = alarm.length;
+    d["time"] = countdownTime;
     //d["time"] = (nextInterpTime > 0) ? nextInterpTime : interpTime;
   }
 
 protected:
   Alarm alarm;
   Breath breath;
+  int countdownTime; // Time to count down in seconds
 };
 
 #endif
