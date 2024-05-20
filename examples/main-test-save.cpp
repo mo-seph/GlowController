@@ -1,3 +1,4 @@
+#include <Arduino.h>
 
 #define FASTLED_ESP32_I2S true
 
@@ -18,19 +19,25 @@ const uint8_t brightness = 255;
 
 FastLEDGlowStrip strip(NUM_LEDS,leds, current);
 GlowController glowControl(&strip,strname(DEVICE_ID),strname(DEVICE_NAME));
-static const char behaviourJSON[] PROGMEM = ( R"(
+
+static const char controlsJSON[] PROGMEM = ( R"(
 {
-  "behaviours":
+  "controls":
   [
     {
-      "id":6,
-      "type":"Fire",
-      "name":"Fire"
-    }
+      "type":"knob",
+      "id":1,
+      "pin":5,
+      "path":[1,"rate"]
+    },
+    {
+      "type":"toggle",
+      "id":1,
+      "pin":4,
+      "path":["hello","active"]
+    },
   ]
-}
-)");
-
+})");
 
 void setup() {
     //Serial.begin(115200);
@@ -46,9 +53,9 @@ void setup() {
     strip.show();
     glowControl.initialise();
     glowControl.setupBaseFeatures(strname(WIFI_SSID), strname(WIFI_PASSWORD), strname(MQTT_SERVER), MQTT_PORT, GMT_OFFSET, DAYLIGHT_OFFSET, strname(NTP_SERVER));
-    //glowControl.setupControls();
+    glowControl.setupControls();
     glowControl.setupBehaviours();
-    //glowControl.setupBehaviours(behaviourJSON);
+    glowControl.loadState();
 
     //deserializeJson(doc,fullJson);
     //serializeJson(doc["controls"],Serial);
@@ -57,6 +64,6 @@ void setup() {
 
 void loop() {
     glowControl.loop();
-    //delay(2000);
+    //delay(200);
     //Serial.println("Update...");
 }
