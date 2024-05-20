@@ -110,6 +110,9 @@ void BaseController::saveState(const char* filename) {
 }
 
 void BaseController::loadState(const char* filename) {
+  Serial.print(F("------+ Loading Saved State from '"));
+  Serial.print(filename);
+  Serial.println(F("' +-------"));
   if(!LittleFS.exists(filename)) {
     Serial.print("File does not exist to load state from: "); Serial.println(filename);
   } else {
@@ -117,12 +120,13 @@ void BaseController::loadState(const char* filename) {
     bool ok = getConfig(stateInput, NULL, filename);
     if( ok ) {
       Serial.println("Read saved state!");
-      serializeJson(stateInput, Serial);
+      serializeJsonPretty(stateInput, Serial);
       Serial.println();
       processFullStateUpdate(stateInput);
       sendState();
     }
   }
+  Serial.println(F("------+ Done Loading State +-------"));
 }
 
 DynamicJsonDocument BaseController::createOutputState() {
